@@ -26,3 +26,15 @@ openssl x509 -in foo.pem -outform DER -out first-cert.der
 $ openssl crl2pkcs7 -nocrl -certfile INPUT.PEM | \
     openssl pkcs7 -print_certs | \
     awk '/subject.*CN=host.domain.com/,/END CERTIFICATE/'
+
+
+#Next run OpenSSL to extract the private key, and the cert file
+#Export the private key file from the pfx file
+
+openssl pkcs12 -in filename.pfx -nocerts -out key.pem
+#Export the certificate file from the pfx file
+
+openssl pkcs12 -in filename.pfx -clcerts -nokeys -out cert.pem
+#Remove the passphrase from the private key
+
+openssl rsa -in key.pem -out server.key
