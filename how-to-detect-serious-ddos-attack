@@ -1,0 +1,61 @@
+How To Detect Serious DDoS Attack
+Distributed denial of service or in short DDoS attack is a Trojan infection in multiple compromised systems. They are used to target attacks on a single system from all systems linked which eventually leads to denial of service DoS attacks.
+
+Every individual and company is connected with a cloud these days. There are numerous advantages of using cloud, but it comes with a price of cyber threats. Not far back, a Linux cloud hosting provider has suffered a DDoS attack which lasted for 10 days.  The attack was so massive, it targeted name servers, application servers and routers.
+
+It did not stop here, it caused a suspected account breach forcing Linode’s users to reset their passwords. Can you imagine all the sensitive information stored in cloud, if it goes in wrong hands what would be the result? By any means even the smallest mistakes in cloud can make you pay bigger price, same goes for company.
+
+Now, the question is how does DDoS attack work? When there is a DDoS attack, the incoming traffic is bombarded from different sources, may be hundreds or even thousands of sources. This makes it impossible to stop the attack, simply by blocking a single IP address.
+
+
+You can never differentiate between a legitimate user traffic from the attack traffic distributed across multiple origin points. Don’t confuse between Denial of Service(DoS) and DDoS attack. Both the attacks are vulnerable but are different from one another. DoS uses one computer while DDoS uses internet connection.
+
+In a DDoS attack, many computers are used while in a DDoS attacks the internet connections to overflow the resource targeted. DDoS are global attacks which are distributed through botnets. While DDoS attack leads to denial of services by attacking the networking site.
+
+In simple words, DDoS attack is a vicious attempt to break down the networks, web-based applications or services by devastating these resources with too much data or destroying them through some other means. DDoS attack are from multiple sources and can award a company bad name and reputation.
+
+Whenever a company is targeted by a DDoS attack, the first question is Why me? Cloud providers are easy victim of this attack, as they lauch different services and contain personal information of all the cloud users. Like their address, phone numbers, credit card numbers and many other sensitive data ultimately degrading customer’s performance.
+
+When a Business faces a DDoS Attacks?
+It disables or deactivates a particular system, service or a complete network
+It may attack alarms, printers, phones, notebooks or laptops.
+Attack system resources for example, the bandwidth, disk space, processor time or routing information.
+Implements malware that disturbs processors and prompts mistakes in computer micro codes.
+Exploits the vulnerabilities of operating system to empty all system resources.
+Destroys the operating systems.
+A DDoS attack makes all the services of the company vulnerable by making all its online services unavailable. Every company wants to protect its services and their customers privacy by protecting them against these attacks, some may be difficult to detect which may bring down the name of the company.
+
+Detecting an Active Dos Attack
+When a server is attacked by DDoS, it slowly starts killing it’s performance. The first thing you will notice after the attack is server crashing. The server makes all the service unavailable & shows a 503 error i.e. “ Service Unavailable”. Heavy DDoS attack may cause permanent 503 server reply to all the users
+
+The next thing you will notice is the server wont crash completely but all the services in the servers become very slow for production. Sometimes it takes several minutes to deposit a form or render a page. If you have a doubt that you might be a victim of this attack then use NetStat present in all Windows operating system.
+
+For this all you need to do is open a Windows command Prompt & then type “netstat –an”. This will generate standard output. If yes then your server is fine and if see different IP addresses linked with some particular port, then get ready your server was attacked by DDoS attack.
+
+We cannot ignore the fact that internet has become an important part of our life,so it is our responsibility to use it safely, protect it from all types of malwares and vulnerable threats that would ultimately harm it & make us loose all our important sensitive data.
+
+Types of DDoS Attacks
+DDoS attack is not a simple virus attack and it does not have a single approach. The attack can be from multiple sources by multiple approaches. The attacks are not the same always, if we consider a high-level DDoS attack, we can broadly classify them into two different categories. They are as follows:
+
+Connection-based Attack: It occurs when there’s a connection between a server and a client created through some standard protocols.
+Connectionless: It occurs before the server sends data packets( unit of communication over digital network) to the client.
+The description does not stop here, if we try to classify different types of DDoS attacks, then it might take us forever, yet the list won’t be complete. Even some of these attacks are still unidentified. Moving forward, DDoS attack can be again classified into three different categories mentioned below.
+
+These attacks are categorized on the basis of network infrastructure on which the attack is targeted. So the attacks are:
+
+Volumetric attacks: Also referred as connectionless mentioned above, the objective of this attack is to create traffic by sending too much data that destroys the bandwidth of the site.
+These attacks are basically implemented using botnets, pool of systems are infected by these attacks by vulnerable software and are completely controlled by a group of hackers which try their level best to make the situation more disastrous for the victim company and make the most out of it.
+
+TCP State: They are also referred as exhaustion attacks, as they target the original web servers, firewalls and load balancers to interrupt connections which ultimately exhausts all the concurrent connections supported by the device.
+Application Layer Attacks: They are also known as connection based attacks. They target the weakness in an application layer or server with the objective of creating a connecting & exhausting the network by manipulating processes & transactions. These hi-fi threats are difficult to detect.
+It is difficult to detect these attacks as they need many machines to attack & create low traffic rate that sounds legitimate. These attacks are generally low & very slow. Like the GeET or POST floods that targeted Apache. These attacks aim at crashing the web server with magnitude in request per sec.
+
+Zero-Day DDoS Attack
+When a hacker misses a zero-day disaster to undergo a DDoS attack, it is know as Zero-Day DDoS attack. The zero-day disaster can be described as a system or an application mistake made by the manufacturer earlier, but has been neglected instead of fixing it or resolving it.
+
+It is crowned with this unique name because after the mistake was fixed the manufacturer has no time or to be precise zero-day to fix it. These attacks are very difficult to secure because they have been initiated from an unknown threat. So, many companies are adopting different bug bounty programs to detect them.
+
+ How to Avoid Dos Attack
+Don’t be disappointed because the good news is you can now protect yourself from DDoS attack. As these attacks have become more active as many ways to deal with them have been found. Now you can secure your business against DDoS by using cloud-based DDoS protection services which is more holistic and proactive approach.
+
+The most recommended DDOS protection service is given by Verisign. It has the highest level of infrastructure protection & availability. They use proactive controlling & alert the systems prior to the attack, so that that server can secure itself & the DDoS attack can be prevented, hence its gone before you know it.
