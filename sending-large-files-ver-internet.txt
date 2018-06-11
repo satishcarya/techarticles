@@ -1,0 +1,53 @@
+Sending Large Files over Internet
+How large file is really considered and treated as large entirely varies as per the context. At times it is required to send and share very large files over Internet. High resolution, large size image files, PDF files, MP3 files containing audio of around 3 minutes can come at least 5MB size.
+
+The email service providers often put size limits on the size of the attachments. In addition, if the possible large files are sent through email as attachments, they take additional overload of few KBs. It becomes even tougher when you need to send it to multiple recipients. Today, there are a wide number of tools available on the Internet to send large files without any hassles.
+
+Send18.com
+It is an awesome file sending service developed by TutorialsPoint, an online educational portal. This service comes absolutely free and you can send files of size as large as 18GB in a single go. It is an extraordinary option to share large files on the Internet for business and personal purpose. There is no limit on types of files or number of files. In addition, your files are safely sent with password protection with this service.
+
+Send18
+Dropsend.com
+This file sending service lets you to send large files of size up to 8GB. You can also use this fast and simple service to send large files to your clients securely. The good news is, you don’t have to install any software; you can send file in just three steps: enter sender’s and recipient’s addresses, select files to send, and click on send.
+
+DropSend
+Transfer.pCloud.com
+It offers file sending in two ways: Regular and Secure. In Regular file sending option, you can send files as large as 5GB without having to register yourself with the pCloud service. In Secure option, you can send encrypted files upto 5GB with size as large as 200MB for a single file. You can send files upto 10 recipients in a go.
+
+transfer.pCloud
+Hightail.com
+It was founded in year 2004 with the original name as YouSendIt. This file sending and sharing service is a pioneer that initiated sending huge files across the internet. Hightail enables you to create folders, which are called spaces. You can send large files as big as 250MB in one go, as well as you can store up to 2GB spaces in its free lite plan.
+
+Mediafire.com
+It is a file sharing utility that enables sharing of files instead of storing them. There are two options: Basic and Pro. The Basic plan option comes with 10GB free space when you create and account with Mediafire. The Pro plan comes with sending files as large as 20GB and storage space of 1TB. The storage space is long term without having to enter any captcha code. The Pro plan is paid one with the rate of $3.75 per anum or $5.0 per month.
+
+Humyo.com
+This file sending and sharing service is available in Free and Paid plans. The free plan of Humyo is indeed a generous one to let you store 30GB files. It has a little catch that out of 30GB, 25GB space must be used for media files and the remaining 5GB space is used for documents. This service synchronizes files of varied sizes across multiple computers and remote data storage systems.
+
+WeTransfer.com
+This browser-based file sending service has a simple yet catchy web interface. It enables you to send many smaller files or a single file of size 2GB in one go. You can send files with password protection and WeTransfer stores them safely for as long as you want them stored. You need to register with the service to avail the WeTransfer Plus plan that costs you $12 a month.
+
+WeTransfer1
+Streamfile.com
+It offers uploading files upto 2GB straight and 30GB via File Transfer Protocol (FTP). It guarantees remote wiping of data after the transfer has taken place successfully. You can send file objects as large as 5TB. You can access your files from any platform such as Linux, Mac, or Windows. The good news is, no browser plugins are required. Streamfile controls and tracks every file transfer activity. It helps you to distribute encrypted files without having to install any 3rd party software. All communication between Streamfile and its users are encrypted.
+
+Streamfile service is available in three different packs: Basic, Pro, and Business.
+
+Files Over Smiles
+It is a file sending service which depends on the size of Random Access Memory (RAM) the Sender’s and Receiver’s computer has. The file to be uploaded or the downloaded file is stored in the RAM of a computer. It is a free, Adobe Flash Player-based service. It turns out extremely useful when the sender and receiver are having at least 16GB RAM on their computer. One bad news is, this file sharing system fails to work when any of the computers has a firewall installed on it.
+
+MailbigFile
+It comes in four flavors: Basic, Pro, Business Lite, and Business. It provides a free file sending service up to 200MB of size. If you prefer to take Pro version that comes for $29 per year, the size limit is increased upto 4GB. It keeps files up for 28 days after they are sent.
+
+File Dropper
+This service allows sending files up to 5GB. The files you send here are kept forever till you delete them. The best of all, you don’t need to register yourself to avail the service. Along with the free service, it offers three paid plans, which run anywhere from $1 to $10 a month. The paid plan increases the file size limit up to 50GB and 250GB in the two upper tiers.
+
+FileDropper
+Cloud Storage Services
+Cloud storage services are yet another services to send, share, and store large files. Today many well-known cloud storage services come free such as:
+
+Google’s Google Drive (15GB)
+Microsoft’s OneDrive (15GB)
+Independent cloud service
+DropBox (2GB)
+Box (10GB; limited to files of size 250MB or less)
