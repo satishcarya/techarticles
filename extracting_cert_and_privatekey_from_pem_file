@@ -1,0 +1,28 @@
+cat $file|awk 'split_after==1{n++;split_after=0} /-----END CERTIFICATE-----/ {split_after=1} {print > "cert" n ".pem"}'
+
+#alternative way 
+
+cat $file|awk 'split_after==1{n++;split_after=0}
+   /-----END CERTIFICATE-----/ {split_after=1}
+   {if(length($0) > 0) print > "cert" n ".pem"}' 
+
+#using csplit for splitting 
+
+csplit -f cert- $file '/-----BEGIN CERTIFICATE-----/' '{*}'
+
+# Extract key
+openssl pkey -in foo.pem -out foo-key.pem
+
+# Extract all the certs
+openssl crl2pkcs7 -nocrl -certfile foo.pem |
+  openssl pkcs7 -print_certs -out foo-certs.pem
+
+# Extract the textually first cert as DER
+openssl x509 -in foo.pem -outform DER -out first-cert.der
+
+#If you want to get a single certificate out of a multi-certificate PEM bundle, try:
+
+
+$ openssl crl2pkcs7 -nocrl -certfile INPUT.PEM | \
+    openssl pkcs7 -print_certs | \
+    awk '/subject.*CN=host.domain.com/,/END CERTIFICATE/'
