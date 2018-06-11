@@ -1,0 +1,50 @@
+cat /etc/hosts
+192.168.2.61 puppet.learnitguide.net puppet
+192.168.2.62 client1.learnitguide.net client1
+systemctl stop firewalld ; systemctl disable firewalld
+yum -y update
+yum -y install http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm
+ll /etc/yum.repos.d/puppetlabs.repo
+-rw-r--r-- 1 root root 1550 Sep  9 06:04 /etc/yum.repos.d/puppetlabs.repo
+[root @puppet ~]# yum -y install puppet-server
+[main]
+dns_alt_names = puppet, puppet.learnitguide.net
+certname=puppet
+ 
+[root @puppet ~]# sudo -u puppet puppet master --no-daemonize --verbose
+Info: Creating a new SSL key for ca
+Info: Creating a new SSL certificate request for ca
+Info: Certificate Request fingerprint (SHA256): 51:5A:EC:D2:85:10:47:C1:A7:C1:81:50:4F:52:EE:FB:AB:F0:CC:29:5D:15:E7:23:8F:BB:47:96:AD:51:05:AA
+Notice: Signed certificate request for ca
+Info: Creating a new certificate revocation list
+Info: Creating a new SSL key for linux1
+Info: csr_attributes file loading from /var/lib/puppet/.puppet/csr_attributes.yaml
+Info: Creating a new SSL certificate request for linux1
+Info: Certificate Request fingerprint (SHA256): B8:4D:FD:DE:D9:E0:DC:AA:07:66:B8:E6:86:13:E5:AC:A7:0A:87:46:36:B6:38:7C:7C:F9:42:3D:20:28:99:0A
+Notice: linux1 has a waiting certificate request
+Notice: Signed certificate request for linux1
+Notice: Removing file Puppet::SSL::CertificateRequest linux1 at '/var/lib/puppet/.puppet/ssl/ca/requests/linux1.pem'
+Notice: Removing file Puppet::SSL::CertificateRequest linux1 at '/var/lib/puppet/.puppet/ssl/certificate_requests/linux1.pem'
+Notice: Starting Puppet master version 3.8.7
+^CNotice: Caught INT; exiting
+[root @puppet ~]# systemctl start puppetmaster
+[root @puppet ~]# systemctl enable puppetmaster
+[root @client1 ~]# yum -y install puppet
+[agent]
+server = puppet.learnitguide.net
+[root @client1 ~]# puppet agent -t
+Info: Caching certificate for ca
+Info: csr_attributes file loading from /etc/puppet/csr_attributes.yaml
+Info: Creating a new SSL certificate request for client1.learnitguide.net
+Info: Certificate Request fingerprint (SHA256): B7:B0:8D:55:08:D1:5A:2D:31:A6:AE:49:40:DA:30:F9:A2:03:37:F7:6A:DC:37:4E:35:B2:54:36:F0:75:3A:62
+Info: Caching certificate for ca
+Exiting; no certificate found and waitforcert is disabled
+[root@puppet ~]# puppet cert list
+"client1.learnitguide.net" (SHA256) B7:B0:8D:55:08:D1:5A:2D:31:A6:AE:49:40:DA:30:F9:A2:03:37:F7:6A:DC:37:4E:35:B2:54:36:F0:75:3A:62
+[root@puppet ~]# puppet cert sign client1.learnitguide.net
+Notice: Signed certificate request for client1.learnitguide.net
+Notice: Removing file Puppet::SSL::CertificateRequest client1.learnitguide.net at '/var/lib/puppet/ssl/ca/requests/client1.learnitguide.net.pem'
+[root@client1 ~]# systemctl start puppet
+[root@client1 ~]# systemctl enable puppet
+[root@client1 ~]# puppet agent --fingerprint
+(SHA256) B7:B0:8D:55:08:D1:5A:2D:31:A6:AE:49:40:DA:30:F9:A2:03:37:F7:6A:DC:37:4E:35:B2:54:36:F0:75:3A:62
