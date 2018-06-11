@@ -1,0 +1,122 @@
+How to Install and Configure Puppet  with Master-Agent on CentOS 7
+ Chandra Prakash Kadarla Chandra Prakash Kadarla, Posted on July 15, 2016, filed in: Information Technology, Linux
+
+
+In this article, we will learn about how to install and configure open source Puppet agent/master on the CentOS 7, which is  from Puppet Labs. Puppet is a configuration management tool that helps system administrator to automate the configuration, provisioning and management of the server infrastructure. The Puppet agents are called as nodes and we will be using the Puppet Server packages instead of the Passenger or any other environments.
+
+We needed a root or super-users access to the servers where we want to install the Puppet master.
+
+Prerequisites
+We needed a proper DNS which is configured on the puppet server so that they the clients are able to communicate with your infrastructure. Firewall ports are open at 8140 from server to client and client to server to send instructions to the nodes/clients.
+
+Preparing the Puppet Master Server
+We needed to install CentOS 7 x64 bit for using with Puppet Master and the host name should be Puppet  and the hardware requirements depends on the how many agents or nodes we want to manager, normally we needed 2 core CPU and minimum of 1GB of RAM and set the host file with the DNS record of the server
+
+192.168.1.87     puppet.demo.com          puppet
+Installing NTP
+As we use certificate authorities for agent nodes, the Puppet master must maintain the accurate time to avoid potential problems when it issues the agents certificates, which may expire if there are some time differences, to avoid these issues we will install NTP (Network Time Protocol).
+
+Installing NTP using the YUM
+below is the command –
+
+# yum install ntp -y
+We needed to update the pool zones in the configuration files so that it will update the correct time from the pools
+
+# vi /etc/ntp.conf
+server 0.us.pool.ntp.org
+server 1.us.pool.ntp.org
+server 2.us.pool.ntp.org
+server 3.us.pool.ntp.org
+Run the below command to update the time on the Puppet Master
+
+# ntpdate pool.ntp.org
+Restarting the NTP services and enable the service to start at boot time
+
+# systemctl restart ntpd
+# systemctl enable ntpd
+Installing the Puppet Server
+As the environment is ready now we will install the puppet master server, we will install the Puppet server  from official repository, to enable the repository we needed to run the below command.
+
+# rpm -ivh https://yum.puppetlabs.com/puppetlabs-release-pc1-el-7.noarch.rpm
+After we update the repository we install the Puppet server using this command
+
+# yum install puppetserver
+Start the Puppet Server and enable the server to start at boot time using the below command\.
+
+# systmectl start puppetserver
+# systemctl enable puppetserver
+Installing the Puppet Agent
+We also needed to install the ager software on all the Puppet servers to manage. We needed to install this agent in all the node or client machines so that they are available for puppet server.
+
+Enable the official Puppet Labs official repository with below command
+
+# rpm -ivh https://yum.puppetlabs.com/puppetlabs-release-pc1-el-7.noarch.rpm
+Installing  the puppet-agent package with the below command
+
+# yum -y install puppet-agent
+Now we needed to star the Puppet agent which is installed with below command:
+
+# /opt/puppetlabs/bin/puppet resource service puppet ensure=running enable=true
+First time when we run the Puppet agent it will generate an SSL certificate and sends a signing request to the Puppet Master.
+
+Getting Started with Puppet
+Now we will learn the basic task for Puppet Master
+
+Collectings Facts of nodes
+‘factor’ which gathers the information about the nodes connected like OS names, host names of the client, SSH keys, IP address and more) we can also add custom facts that are not a part of default facts
+
+To list the facts that are automatically being gathered, run the below command to do.
+
+# /opt/puppetlabs/bin/factor
+Main Manifest File
+Puppet uses a specific language to tell the system configuration which manifests with extension .pp as default configuration file. The manifests are located at the following – /etc/puppetlabs/code/environments/production/manifests/site.pp
+
+They are executed using the Puppet agents periodically executed in 30 minutes by default, when it checks the facts sends itself to the master which are pulled to the current catalog and the desired state which are relevant to the agent are determined by the main manifest.
+
+Execution on a  Particular Agent Node
+We can also initiate the check for a particular agent manually and run the below command to manual execution.
+
+# /opt/puppetlabs/bin/puppet agent –test
+Example Manifest for Demo
+# vi /etc/puppetlabs/code/environments/production/manifests/site.pp
+file {'/tmp/example-ip':                                            # resource type file and filename
+  ensure  => present,                                               # make sure it exists
+  mode    => '0644',                                                # file permissions
+  content => "192.168.1.100: ${ipaddress_eth0}.\n",  # note the ipaddress_eth0 fact
+}
+This will display the IP address located in the /tmp folder and the manifest will ensure that all the nodes will have the example-ip file in the /tmp folder.
+
+Executing on a Specific a Node
+We can also define a resource for the specific nodes in the manifest which can be done using node in the manifest.
+
+# vi /etc/puppetlabs/code/environments/production/manifests/site.pp
+node 'node1', 'node2' {    # applies to node1 and node2 nodes
+  file {'/tmp/dns':    # resource type file and filename
+    ensure => present, # make sure it exists
+    mode => '0644',
+    content => "Only DNS servers get this file.\n",
+  }
+}
+node default {}       # applies to nodes that aren't explicitly defined
+The above example will ensure that node1 and node2 will have the file at /tmp/dns.
+
+Executing a Module from Puppet Master
+Modules can be useful for the grouping tasks to run together. There are many modules available in the Puppet community or we can write our own modules.
+
+If we needed to install puppetlabs-apache modules.
+
+# /opt/puppetlabs/bin/puppet module install puppetlabs-apache
+Now edit the site.pp and add the following to install apache on the node2
+
+node 'host2' {
+  class { 'apache': }             # use apache module
+  apache::vhost { 'demo.com':  # define vhost resource
+    port    => '80',
+    docroot => '/var/www/html'
+  }
+}
+This will install the apache package and configure a virtual host called demo.com for listening on the port 80 and the document root will be /var/www/html
+
+Note: before running  this example, be careful that this will remove all the existing Apache configuration if anything there existing in the nodes.
+
+After the configuration and setup we have covered the basic Master/agent installation with some manifest, modules we can manage the clients are infrastructure using the Puppet, as Puppet has many more features we will cover them in the further articles.
