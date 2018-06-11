@@ -1,0 +1,24 @@
+Text Editor Install and Configure
+Windows: Notepad++
+While Notepad will work, Notepad++ is a much better text editor that is also free.
+Command Listing
+notepad++ # testing to make sure it works
+notepad++ .bashrc # see contents of .bashrc file below
+npp # testing npp alias
+git config --global core.editor "notepad++.exe -multiInst -nosession"
+npp .gitconfig # open Git config file, should contain snip below
+~/.bashrc File
+alias npp='notepad++.exe -multiInst -nosession'
+~/.gitconfig File (snip)
+[core]
+editor = notepad++.exe -multiInst -nosession
+Mac OS X: TextMate 2
+On the Mac, TextMate 2 is a freely available text editor that work a bit better than TextEdit.
+Command Listing
+git config --global --list # before
+git config --global core.editor "mate -w"
+git config --global --list # after
+mate .gitconfig # compare with snip below
+~/.gitconfig File (snip)
+[core]
+editor = mate -w
