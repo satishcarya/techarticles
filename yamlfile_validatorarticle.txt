@@ -1,0 +1,9 @@
+[Short Tip] verify YAML in Shell via Python one-liner [Update]
+python logo
+
+Today the question came up how to verify YAML files easily. Of course, there are many very good online parser. But I was wondering if it is possible to do it simply in Bash/ZSH, using a Python one-liner. Here is the code:
+
+$ python -c 'import yaml,sys;yaml.safe_load(sys.stdin)' < yamltest.txt
+It throws an exception if the file is not a proper (aka importable) YAML file. Otherwise it just returns with a 0 exit code.
+
+Please note that I am not sure how tolerant yaml.safe_load is. And note that PyYAML needs to be installed.
