@@ -1,0 +1,3 @@
+#this is a guide to know how to validate yaml file using python
+
+python -c 1import yaml,sys;yaml.safe_load(sys.stdin)' < yamltest.txt
