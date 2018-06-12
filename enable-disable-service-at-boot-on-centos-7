@@ -1,0 +1,52 @@
+Mattias Geniar, Saturday, August 8, 2015
+This post will show you how to enable or disable a service to start on boot, on a RHEL or CentOS 7.
+
+Check if the service starts on boot
+You manage your services on RHEL/CentOS 7 through systemctl, the systemd service manager.
+
+To check if a service starts on boot, run the systemctl status command on your service and check for the "Loaded" line.
+
+$ systemctl status httpd
+httpd.service - The Apache HTTP Server
+   Loaded: loaded (/usr/lib/systemd/system/httpd.service; enabled)
+...
+The last word, either enabled or disabled, will tell you if the service starts on boot. In the case above, the Apache2 webserver "httpd", it's Enabled.
+
+Disabling a service on boot in CentOS 7
+To disable, it's simply a matter of running systemctl disable on the desired service.
+
+$ systemctl disable httpd
+rm '/etc/systemd/system/multi-user.target.wants/httpd.service'
+
+$ systemctl status httpd
+httpd.service - The Apache HTTP Server
+   Loaded: loaded (/usr/lib/systemd/system/httpd.service; disabled)
+...
+Running systemctl disable removes the symlink to the service in /etc/systemd/system/*. From now on, that service won't start on boot anymore.
+
+Enabling a service on boot in CentOS 7
+Very similar to disabling a service, you run systemctl enable on the target service.
+
+$ systemctl enable httpd
+ln -s '/usr/lib/systemd/system/httpd.service' '/etc/systemd/system/multi-user.target.wants/httpd.service'
+
+$ systemctl status httpd
+httpd.service - The Apache HTTP Server
+   Loaded: loaded (/usr/lib/systemd/system/httpd.service; enabled)
+...
+The same symlink that was removed in the disable command above is recreated if you enable a service to start on boot.
+
+Check which services failed to start on boot on CentOS 7
+As a bonus, systemctl allows you to list all services that failed to start on boot, even though they were configured to start on boot.
+
+$ systemctl --failed
+UNIT            LOAD   ACTIVE SUB    DESCRIPTION
+kdump.service   loaded failed failed Crash recovery kernel arming
+php-fpm.service loaded failed failed The PHP FastCGI Process Manager
+
+LOAD   = Reflects whether the unit definition was properly loaded.
+ACTIVE = The high-level unit activation state, i.e. generalization of SUB.
+SUB    = The low-level unit activation state, values depend on unit type.
+In the example above, the kdump and php-fpm service failed to start on boot. If that's the case, you may want to check the startup scripts or its dependencies (maybe they depend on another service being up first?).
+
+
