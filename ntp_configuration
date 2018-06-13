@@ -1,0 +1,47 @@
+14.6. Basic NTP configuration
+
+The NTP program is configured using either the /etc/ntp.conf	or /etc/xntp.conf file depending on what distribution of Linux you have. I won't go into too much detail on how to configure NTP. Instead I'll just cover the basics.
+
+An example of a basic ntp.conf file would look like:
+# --- GENERAL CONFIGURATION ---
+server  aaa.bbb.ccc.ddd
+server  127.127.1.0
+fudge   127.127.1.0 stratum 10
+
+# Drift file.
+
+driftfile /etc/ntp/drift
+	
+
+The most basic ntp.conf file will simply list 2 servers, one that it wishes to synchronize with, and a pseudo IP address for itself (in this case 127.127.1.0). The pseudo IP is used in case of network problems or if the remote NTP server goes down. NTP will synchronize against itself until the it can start synchronizing with the remote server again. It is recommended that you list at least 2 remote servers that you can synchronize against. One will act as a primary server and the other as a backup.
+
+You should also list a location for a drift file. Over time NTP will "learn" the system clock's error rate and automatically adjust for it.
+
+The restrict option can be used to provide better control and security over what NTP can do, and who can effect it. For example:
+# Prohibit general access to this service.
+restrict default ignore
+
+# Permit systems on this network to synchronize with this
+# time service. But not modify our time.
+restrict aaa.bbb.ccc.ddd nomodify
+
+# Allow the following unrestricted access to ntpd
+
+restrict aaa.bbb.ccc.ddd
+restrict 127.0.0.1
+It is advised that you wait until you have NTP working properly before adding the restrict option. You can accidental restrict yourself from synchronizing and waste time debugging why.
+
+NTP slowly corrects your systems time. Be patient! A simple test is to change your system clock by 10 minutes before you go to bed and then check it when you get up. The time should be correct.
+
+Many people get the idea that instead of running the NTP daemon, they should just setup a cron job job to periodically run the ntpdate command. There are 2 main disadvantages of using using this method.
+
+The first is that ntpdate does a "brute force" method of changing the time. So if your computer's time is off my 5 minutes, it immediately corrects it. In some environments, this can cause problems if time drastically changes. For example, if you are using time sensitive security software, you can inadvertently kill someones access. The NTP daemon slowly changes the time to avoid causing this kind of disruption.
+
+The other reason is that the NTP daemon can be configured to try to learn your systems time drift and then automatically adjust for it.
+
+The drift file is /var/lib/ntp/ntp.drift. This is fairly standard. For RH/Fedora, it's /var/lib/ntp/drift.
+
+The units for the drift file are "PPM", or "parts per million". Your clock will drift due to fluctuations in the frequency oscillating the quartz crystal on your motherboard. A fluctuation of just 0.001% (0.00001, or 10 PPM) means losing or gaining about 1 second per day. NTP has finer grained control than that, so we look at errors of margin using 0.0001% (0.000001, or 1 PPM). Thus:
+
+1 PPM = 1 part per million = 1 microsecond per second = 3.6ms per hour = 86.4ms per day
+Thus, my drift file shows the value of "2.643" which means my clock is off by 2.643 parts per million, which means it's currently off at 228.3552ms per day.
