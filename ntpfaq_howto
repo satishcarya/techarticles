@@ -1,0 +1,290 @@
+The NTP FAQ and HOWTO
+
+Understanding and using the Network Time Protocol (A first try on a non-technical Mini-HOWTO and FAQ on NTP)
+2006-11-21
+Edited by
+Ulrich Windl
+David Dalton
+Hewlett-Packard
+Marc Martinec
+Josef Stefan Institute
+Jamova 39
+SI-1000 Ljubljana,
+Slovenia
+
+Ulrich Windl
+Dale R. Worley
+This document is not as complete as it should be, but I decided to forward it to a wider audience. Any contributions are welcome. Most incomplete sections are marked with "XXX Note from the editor:".
+Copyright © 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006 Ulrich Windl, et al. (see credits)
+
+Copyright
+
+The material in this document is covered by the respective contributor's copyright. © Copyright 1999 - 2005, by the contributors and editors of this document. For details see the list of editors and authors.
+
+All editors and contributors (non-exclusively) grant a perpetual, irrevocable, and royalty free license to distribute this document under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+This document is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+If you don't already have the GNU General Public License at hand, write to the Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+Table of Contents
+1. About this Document
+1.1. Credits
+2. Time, what Time?
+3. How do Computer Clocks work?
+3.1. Bits and Registers
+3.2. Making Time go on
+3.3. Clock Quality
+3.3.1. Frequency Error
+4. What is NTP?
+4.1. Overview
+4.2. History
+4.3. Implementations and Platforms
+5. How does it work?
+5.1. Basic Concepts
+5.2. The Kernel Discipline
+5.3. NTP in real Life
+5.4. Encryption
+5.4.1. The Basics of Autokey
+6. Configuration of xntpd
+6.1. Basic Configuration
+6.1.1. Recommended Minimum
+6.1.2. Running an isolated Network
+6.1.3. Recommended Goodies
+6.1.4. Miscellaneous Hints
+6.2. Advanced Configuration
+6.2.1. Server Selection
+6.2.2. Authentication
+6.2.3. Broadcasting, Multicasting, and Manycasting
+6.2.4. PPS Synchronization
+6.2.5. Automatic Configuration
+6.2.6. Offering Time Service
+6.3. Various Tricks
+6.4. Compatibility
+6.4.1. The Kernel PLL
+7. Reference Clocks
+7.1. Products
+8. Troubleshooting
+8.1. Monitoring
+8.2. General Issues
+8.2.1. Messages
+8.3. Specific Products
+8.3.1. PC Hardware
+8.3.2. FreeBSD
+8.3.3. Irix
+8.3.4. Linux
+8.3.5. Macintosh
+8.3.6. Oncore Compatibles
+8.3.7. Solaris
+8.3.8. Sun Hardware
+8.3.9. Trimble Clocks
+8.3.10. TrueTime
+8.3.11. Windows/NT Family
+8.4. Reporting Bugs
+9. Background and Related Information
+9.1. GPS
+9.1.1. Selective Availability revisited
+Common Terms and Acronyms
+This document tries to explain the most basic features of NTP, and to answer many frequently asked questions. The intention is to help the average user to get a quick start with the official implementation of NTP. Technical issues and mathematics are avoided where possible. Instead the most common questions are tried to be answered, enabling everybody to get a working configuration.
+
+ 	
+All we do here is invent games to pass the time.
+
+ 	John O' Donohue
+1. About this Document
+This section tries to answer questions about the document itself. So we could call it Meta-FAQ. If you like, you can call it preface or foreword as well.
+
+This document is intended for beginners as well as advanced users that are looking for for advice. However, basic skills in system administration are required to enjoy this tour. True experts on the subject will probably prefer the original documentation that comes with the software, or correct me where I'm wrong.
+
+The impatient may want to go directly to the first section, Section 2, where fundamentals of timekeeping are discussed. The next section, Section 3, introduces clocks that are implemented using computers. If you are reading sequentially, you should be ready for the section that presents NTP (Section 4).
+
+At that point focus is moving from a more theoretical treatment of the subject to practical aspects, starting with Section 5. Then in Section 6 we are going into practice, namely configuration of the NTP software. The following section (Section 7) will talk about reference clocks.
+
+Real life is talked about in Section 8 where procedures, tips and tricks for troubleshooting are presented. For the curious, Section 9 will provide further information and references to such. Finally, there is a glossary with some terms explained.
+
+Those who are still reading sequentially are asked to try some of the numerous hyperlinks found not only at the top and bottom of each section. If you got lost, you can always to back to the beginning where the table of contents is.
+
+1. Updating the FAQ
+1.1.1. Where can I get a new version of this document?
+1.1.2. When will a new version of this document be available?
+2. Naming
+1.2.1. Why is this Document named FAQ?
+1.2.2. Why is this Document named HOWTO?
+3. Policies
+1.3.1. Why can't I find information about ... in this FAQ?
+1.3.2. Where should a new Entry be put?
+4. Making Contributions
+1.4.1. Why should I contribute?
+1.4.2. How can I contribute?
+1.4.3. In what format should I send contributions?
+1.4.4. Where should I send Contributions?
+1.4.5. I contributed to this FAQ, but my name is not mentioned anywhere. What's wrong?
+1.4.6. Why SGML and DocBook?
+1.4.7. How can I process the SGML source file?
+5. Appearance
+1.5.1. I don't like the look of the FAQ. What can I do?
+1.5.2. Which Browser is required to read this?
+1.5.3. Why are Graphics stored in PNG Format?
+1.5.4. Why are some Fonts that huge?
+1.5.5. Why are there no Frames?
+1.5.6. Why isn't there fancy Script Code?
+1. Updating the FAQ
+1.1.1. Where can I get a new version of this document?
+
+The following procedure, developed for the UNIX operating system, should provide you with the current version of this document:
+
+Make sure you have a working version of CVS for your operating system, and that you can make connections to the Internet.
+
+If you are going to update an existing version, you may directly jump to step 5.
+
+For convenience let's set a variable in the shell using either set FAQREPO=:pserver:anoncvs@www.ntp.org:/cvs/ntp for the C shell, or FAQREPO=:pserver:anoncvs@www.ntp.org:/cvs/ntp for POSIX compatible shells.
+
+Log in to the NTP repository using cvs -d $FAQREPO login. The password is anoncvs. This will allow further commands.
+
+Create a subdirectory with all the files using cvs -d $FAQREPO checkout ntpfaq. Please consult the documentation on CVS for details and available options.
+
+To save time and bandwidth when updating, simply change to the directory containing the FAQ and type cvs update. That command will update your files according to the repository.
+
+An online version should be available at http://www.ntp.org/ntpfaq/. The current top-level file is NTP-a-faq.htm.[1]
+
+Please note that checking out the CVS sources will provide the SGML sources as well as the HTML pages. I cannot make a statement about what will be available via HTTP, but I expect that only the HTML files are there, and listing the directory will not work.
+
+1.1.2. When will a new version of this document be available?
+
+I edit this document in my spare time. My spare time is quite rare. Therefore I rely on contributions to improve this work (see Q: 1.4.2.). Feel free to contact me if you want to make a contribution.
+
+I hope to update this document as soon as important new stuff is available. The same applies for severe bug fixes.
+
+2. Naming
+1.2.1. Why is this Document named FAQ?
+
+This document tries to answer frequently asked questions (FAQs) that can not (at least virtually) be answered easily from the standard documentation.
+
+1.2.2. Why is this Document named HOWTO?
+
+In addition to just answering questions that users had, this document also tries to give a gentle introduction and guidelines to the newcomer. The authors believe that it's better to use NTP correctly right from the start rather than fixing all the problems after they occur.
+
+Gentle in the paragraph above means not too technical and not too theoretical. However some basic, non-trivial understanding of real-life is required at several points, so please accept these deviations from the goal.
+
+3. Policies
+1.3.1. Why can't I find information about ... in this FAQ?
+
+Unless it simply has not been written yet, there may be other reasons:
+
+The editors don't want to copy documentation that is publicly available already. This is especially true for standards, specifications and manuals. The editors think that referring is better than copying. The intention is to avoid redundancy while saving labour at the same time.
+
+Either the problem or the solution is too vague to document it. This is true for very special configurations that are not at all common. After all, we want to answer frequently asked questions here.
+
+1.3.2. Where should a new Entry be put?
+
+The answer to this question is quite delicate! The guidelines are probably these:
+
+Try to understand the existing structure of the document.
+
+If there are similar entries there already, see where the new one fits best. Usually it's right near the existing one, or in a corresponding section. Possibly it makes sense to create a new section or division.
+
+4. Making Contributions
+1.4.1. Why should I contribute?
+
+In the good old times the Internet was a valuable source of information, and people were happy to share their knowledge. These days, however, people think of E-Commerce, how to make money.
+
+I started writing this FAQ not to make money, but to have a reference to refer to. Thus I hope I'll be able to provide the needed information to more people more quickly. Unfortunately I do not know everything. So if you have solved some problem that may be of interest to other people as well, please share your experience.
+
+1.4.2. How can I contribute?
+
+Contributions are very much appreciated. Depending on your possibilities you can:
+
+Tell me about some error or incomplete information given. I call it a minor contribution. If you want to be listed in the hall of fame (also called credits), just tell me when contributing. If you prefer anonymous contributions, they are welcome just the same.
+
+You can suggest an addition consisting of a question together with its answer. I call this a major contribution. Major contributions are definitely worth being listed as author in the header of the document if you like. Of course you can downgrade your contribution to plain credits or nothing if you prefer.
+
+Contributions are accepted in any format, but I prefer plain US-ASCII or ISO-8859-1. If you can avoid it, don't send files in some text processing format.
+
+Supplying a valid patch against the source of this document will make the most appreciated contribution. This allows you to be listed as co-author. As before, you can downgrade your contribution as you like. For details see In what format should I send contributions?.
+
+1.4.3. In what format should I send contributions?
+
+This document is most likely not written in the format you are seeing. The document source is written in SGML (Structure Generalized Markup Language, ISO-8879) using the DocBook DTD (Document Type Definition). Therefore the source document has a rather fixed structure, much unlike HTML. See also Q: 1.4.6..
+
+So the essence is: Try to learn writing documents conforming to the DocBook DTD. In the meantime I'll do my best converting your input to the proper format (See the more general discussion in How can I contribute?).
+
+1.4.4. Where should I send Contributions?
+
+The sources controlled by CVS can be updated by various people, but contributions should be sent to the currently defined editor. Every HTML file contains a mailto: hyperlink to the editor. Many browsers allow sending comments to the author that way. Another method is to visit the file ChangeLog found where the sources are (See Q: 1.1.1.).
+
+1.4.5. I contributed to this FAQ, but my name is not mentioned anywhere. What's wrong?
+
+Probably the fault of the editor. Maybe he thought you don't want to be listed, or he simply forgot. Section 1.1 shows the names the editor was aware of.
+
+1.4.6. Why SGML and DocBook?
+
+Well, I'm not getting paid for my work, so I tried to learn something new while writing this piece of documentation. SGML is one of the dinosaurs of information technology, an endangered species that may be killed by the more agile XML. So maybe feeding dinosaurs is just cool.
+
+DocBook is just another monster that is used by even larger monsters like HP for documentation. Definitely it's also animal, because it's used by O'Reilly & Associates, Inc.[2] Finally it's an open technology: All specifications (and many tools) are freely available.
+
+Specific output formats are generated by applying style sheets within a framework consisting of James Clark's JADE (James' DSSSL Engine) and Norman Walsh's Modular DocBook Stylesheets. While this document probably will be used mostly in HTML format, other formats like TeX and RTF (Rich Text Format) can be generated as well.
+
+1.4.7. How can I process the SGML source file?
+
+I'm editing this document with the Linux/GNU operating system. Most Linux distributions come with the required tools. In my distribution these tools are in the following packages:
+
+emacs (GNU Emacs, the editor)
+docbook_4 (The DocBook DTD and related files)
+docbook-dsssl-stylesheets (The modular style sheets for DocBook)
+openjade (OpenJade, the follow-up to Jade by James Clark's DSSSL-Engine for SGML Documents)
+opensp (The OpenJade Group's SGML and XML Parsing Tools)
+psgml (Provides SGML knowledge for Emacs. I would not survive without that!)
+You might want to have a look at these packages as well: docbook-css-stylesheets, docbook-tdg (DocBook: The Definitive Guide)
+
+So if you want to edit and validate any changes you are making, try to get the equivalent tools for your operating system as well. If you like the pain, you can use these tools on Microsoft Windows™ as well.
+
+Basically the command to generate HTML files is jade -t sgml -d NTP-FAQ.dsl#html NTP-FAQ.sgml where the environment contains these special settings:
+
+SGML_CATALOG_FILES=SGML_CATALOG_FILES=/var/lib/sgml/CATALOG.docbook_4
+SGML_SEARCH_PATH=/usr/share/sgml/docbook/dsssl-stylesheets/html
+5. Appearance
+1.5.1. I don't like the look of the FAQ. What can I do?
+
+You are lucky: Actually the source of the FAQ uses no formatting rules at all, even the DSSSL code relies on HTML classes and style sheets to do the rendering. All properties like borders, colours, and font attributes are taken from a cascading style sheet (CSS).
+
+In practice, this means you don't have to change the HTML source to change the appearance. Instead simply provide your favourite user style sheet to do the formatting. If you prefer no fancy attributes at all, just empty the docbook.css file.[3]
+
+If the output looks extraordinarily odd, you may have a broken HTML browser. See also Q: 1.5.2..
+
+If you think colours are inconsistently chosen, please make a suggestion for future improvement. If you dislike single colours or combinations thereof, please suggest a change. Doing that job is more an art than a science.
+
+I'm aware that some elements are not rendered the best possibly way. As I don't waste much time (at least not even more time) with rendering of elements, I strongly rely on Norman Walsh's competence in JADE programming. I'm hoping that things will improve over time.
+
+Example 1. Style Sheet Entry
+
+*.ACRONYM { color: #5838d0 }
+This entry causes all HTML elements with attribute class=ACRONYM (i.e. all acronyms) to be output in a kind of royal blue. The example shown does not use official WWW colours. It's strongly recommended to use official colours for portability.
+
+If your browser goes mad, and your vendor allows you to report bugs, feel free to report the problems to them. If you think I went mad, feel free to tell me too ;-)
+
+1.5.2. Which Browser is required to read this?
+
+This FAQ is intended to be read with the famous "any browser". It means that standard HTML is used, omitting any fancy extensions. Still individual browsers may implement different subsets of the standard.
+
+I usually test the output using the following browsers in Linux (roughly ordered by fanciness):
+
+Mozilla (http://www.mozilla.org/releases/)
+Amaya
+w3m (text-oriented, supports tables)
+Emacs/W3 (text-oriented, supports tables)
+Lynx (text-oriented, vi-like)
+1.5.3. Why are Graphics stored in PNG Format?
+
+The popular GIF format supported by many browsers relies on a compression algorithm that is patented, and the owner of the patent wants to receive money from everyone making GIF files. PNG (Portable Network Graphics) uses a different algorithm for compression and does not require payment.
+
+1.5.4. Why are some Fonts that huge?
+
+Netscape Navigator (e.g. version 4.74) seems to have a bug with relative font scaling. Try to disable using stylesheets, or try a recent Mozilla. See also Q: 1.5.1..
+
+1.5.5. Why are there no Frames?
+
+Sorry, I have my daily frustration with frames, so I don't want any more. Despite of that I think that most frames just consume valuable space on either your screen or on your print-out.
+
+1.5.6. Why isn't there fancy Script Code?
+
+Currently scripting is neither fast nor portable, so I don't use it.
