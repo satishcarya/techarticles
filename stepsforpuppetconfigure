@@ -1,0 +1,11 @@
+client: 
+rpm -ivh http://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm
+yum install puppetserver.noarch
+echo "server = gitpractice" >>  /etc/puppet/puppet.conf
+puppet agent -t 
+
+master: 
+
+puppet cert sign puppetclient4.c.steam-canto-775.internal
+
+
