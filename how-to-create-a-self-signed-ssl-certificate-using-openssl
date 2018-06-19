@@ -1,0 +1,103 @@
+Situation
+You can use the Reporter OpenSSL utility to generate a Private Key, Certificate Siging Request (CSR) and Self-Signed Certificate.
+
+In Windows with Reporter installed, the OpenSSL utility is located in "Program Files\Blue Coat Reporter 9\utilities\ssl"
+
+Step 1: Generate a Private Key 
+ 
+Use the openssl toolkit, which is available in Blue Coat Reporter 9\utilities\ssl, to generate an RSA Private Key and CSR (Certificate Signing Request).
+It can also be used to generate self-signed certificates that can be used for testing purposes or internal usage (more details in Step 3).
+The first step is to create your RSA Private Key. This key is a 1024-bit or 2048 RSA key with encrypted. Blue Coat does not recommend non-encrypted key.
+The key length 1024 is not long enough; the recommended length is 2048. If it uses encrypted key, openssl asks for  pass phrase.
+
+a) Double-click the openssl tool under Blue Coat Reporter 9\utilities\ssl and enter the following command:
+
+openssl >genrsa -des3 -out server.key 1024 
+or
+openssl >genrsa -des3 -out server.key 2048 
+
+
+b) After pressing Enter, you are asked to enter a pass phrase for the server.key. You can enter any pass phrase. 
+ 
+Loading 'screen' into random state - done
+Generating RSA private key, 1024 bit long modulus
+.........................++++++
+..............++++++
+e is 65537 (0x10001)
+Enter pass phrase for server.key:
+ 
+c) The server.key generates in Blue Coat Reporter 9\utilities\ssl; this is required later in the procedure. 
+ 
+Step 2: Generate a CSR (Certificate Signing Request) 
+ 
+After the private key is generated, you can generate a Certificate Signing Request.
+The CSR is sent to a Certificate Authority, such as Verisign, that verifies the identity of the requestor and issues a signed certificate.
+The second option is to self-sign the CSR (Step 3 uses this for demonstration).
+ 
+During the generation of the CSR, you are prompted for several pieces of information. These are the X.509 attributes of the certificate.
+Blue Coat recommends SHA-2 for Certificates. The command to generate the CSR is as follows:
+
+req –new –key private_key_file_name.key -sha256 –out csr_file_name.csr
+
+a) Enter the following command at the prompt:
+
+Openssl> req -new -key server.key -sha256  -out server.csr
+
+
+b) This command prompts for the following X.509 attributes of the certificate.
+Enter appropriate information based on the environment; for example:
+ 
+
+Country Name (2 letter code) [GB]: For example: US or CA.
+State or Province Name (full name) [Berkshire]: For example: California
+Locality Name (eg, city) [Newbury]: For example: Berkeley
+Organization Name (eg, company) [My Company Ltd]: For example: BlueCoat
+Organizational Unit Name (eg, section) []:For example: IT
+Common Name (eg, your name or your server's hostname) []:For example: bluecoat.com
+Email Address []:For example: martin.John@bluecoat.com
+Please enter the following 'extra' attributes
+to be sent with your certificate request
+A challenge password []:
+An optional company name []:
+
+ 
+c) The server.csr generates in Blue Coat Reporter 9\utilities\ssl and you can use this CSR to submit to CA to issue a signed certificate.
+ 
+Step 3: Generating a Self-Signed Certificate 
+ 
+As mentioned above, you must send the CSR to Certificate Authority, such as Verisign, that verifies the identity of the requestor and issues a signed certificate.
+Or you can use self-sign the CSR if you either do not plan to have your certificate signed by a CA or you want to just test it only while the CA is signing your certificate.
+This example uses a self-signed certificate method by using the openssl tool to generate a temporary certificate that generates an error in the client browser to the effect that the signing certificate authority is unknown and not trusted.
+ 
+a) To generate a temporary certificate, which is good for 365 days, issue the following command:
+
+Openssl> x509 -req -days 365 -in server.csr -signkey server.key -sha256 -out server.crt
+Signature ok
+subject=/C=US/ST=California/L=Berkeley/O=BlueCoat/OU=IT/CN=bluecoat.com/em
+ailAddress=martin.john@bluecoat.com
+Getting Private key
+Enter pass phrase for server.key:
+
+ 
+b) You must enter the pass phrase for the server.key that you entered in the step 1 above.
+c) The server.crt generates in Blue Coat Reporter 9\utilities\ssl and you need to use this CRT to convert it to PEM format, which can be readable by Reporter.
+ 
+Step 4: Convert the CRT to PEM format
+ 
+Use the openssl tool to convert the CRT to a PEM format, which is readable by Reporter.
+ 
+a) Enter the following command at the prompt:
+
+Openssl> x509 -in server.crt -out server.pem -outform PEM
+
+b) The server.pem generates in Blue Coat Reporter 9\utilities\ssl; you will use this in the next step.
+
+Step 5: Configure Reporter to use the server.pem and private key
+
+a) Log into the Reporter user interface and navigate to Administration > General Settings > System Settings > Server Settings.
+b) Under Protocol, select the HTTPS option. Ensure the port number matches the port number that was configured for the SSL certificate.
+c) Under Certificate, select the Enter Certificate option.
+d) Locate and select the certificate file that was generated in the previous step: server.pem.
+e) Locate and select the private key file: server.key.
+f)  Test the certificate and key to ensure Reporter can read them.
+g) Save the changes and restart the Reporter service.
