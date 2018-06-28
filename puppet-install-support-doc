@@ -1,0 +1,7 @@
+#installing yum repository for puppet
+sudo yum install -y http://yum.puppetlabs.com/puppetlabs-release-pc1-el-7.noarch.rpm
+#validation of addition is 
+sudo yum repo list
+#this should show the puppet labs repository added.
+#installing the puppet agent 
+sudo yum install -y puppet-agent
