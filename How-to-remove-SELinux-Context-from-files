@@ -1,0 +1,44 @@
+I think this is what you want.
+
+The following command will remove the "dots" (will remove the SELinux context).
+
+This will remove all the SELInux context from all files and directories in /home:
+
+
+# find /home -exec sudo setfattr -h -x security.selinux {} \;
+
+
+
+Easy way to remove SELinux permissions?
+Sean Carlos sean.carlos at gmail.com 
+Thu Sep 10 15:31:38 UTC 2009
+Previous message: Easy way to remove SELinux permissions?
+Next message: Easy way to remove SELinux permissions?
+Messages sorted by: [ date ] [ thread ] [ subject ] [ author ]
+Stephen Smalley wrote the following on 09/10/2009 02:57 PM:
+> On Thu, 2009-09-10 at 07:58 +0200, Sean Carlos wrote:
+>> At one point I performed a new Fedora install and restored my personal
+>> files before disabling SELinux which I don't need.
+>>
+>> As a result many files have permissions which include a dot at the end,
+>> e.g.:
+>>
+>> -rw-rw-r--.
+>>
+>> This causes havoc with many applications, i.e. gedit complains it cannot
+>> make a back-up file.
+>>
+>> Q: How can I EASILY remove all SELinux attributes, e.g. perhaps with a
+>> single command?
+>
+> If SELinux is disabled, then you should be able to do this:
+> find / -exec setfattr -x security.selinux {} \;
+>
+> You might want to further qualify the find statement to avoid noise on
+> filesystems that don't support security contexts, e.g.
+>
+> find / \( -fstype ext2 -o -fstype ext3 -o -fstype ext4 -o -fstype btrfs \) -exec setfattr -x security.selinux {} \;
+>
+
+This works perfectly - thanks!
+
