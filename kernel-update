@@ -1,0 +1,34 @@
+Installation of new "kernel-firmware" package files conflicts with file from older version of kernel-firmware" package.
+ SOLUTION VERIFIED - Updated July 23 2014 at 2:33 PM - English 
+Environment
+Red Hat Enterprise Linux 6
+kernel-firmware
+kernel
+rpm
+Issue
+While we are trying to install kernel package it throws below dependency error.
+Eg:
+Raw
+# rpm -ivh kernel-2.6.32-279.11.1.el6.x86_64.rpm
+error: Failed dependencies:
+        kernel-firmware >= 2.6.32-279.11.1.el6 is needed by kernel-2.6.32-279.11.1.el6.x86_64
+And when trying to install, the kernel-firmware package it throws below error.
+Eg:
+Raw
+# rpm -ivh kernel-firmware-2.6.32-279.11.1.el6.noarch.rpm
+Preparing...                ########################################### [100%]
+        file /lib/firmware/isci/isci_firmware.bin from install of kernel-firmware-2.6.32-279.11.1.el6.noarch conflicts with file from package kernel-firmware-2.6.32-131.0.15.el6.noarch
+        file /usr/share/doc/kernel-firmware-2.6.32/WHENCE from install of kernel-firmware-2.6.32-279.11.1.el6.noarch conflicts with file from package kernel-firmware-2.6.32-131.0.15.el6.noarch
+Resolution
+Upgrade the "kernel-firmware" package using "rpm -Uvh" command.
+Eg:
+Raw
+# rpm -Uvh kernel-firmware-2.6.32-279.11.1.el6.noarch.rpm
+And then install the kernel package using "rpm -ivh" command.
+Eg:
+Raw
+# rpm -ivh kernel-2.6.32-279.11.1.el6.x86_64.rpm
+Root Cause
+The files provided by older and newer versions of kernel-firmware packages are same. Hence, they can not be overwritten by using "rpm -ivh" command.
+
+The "isci_firmware.bin" and "WHENCE" files from new version of kernel-firmware package(2.6.32-279.11.1) are conflicting with files from older version of kernel-firmware package(2.6.32-131.0.15).
