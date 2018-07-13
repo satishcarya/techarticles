@@ -1,0 +1,105 @@
+Home PuppetConf Forge Docs Learn Support & Services Contact Us
+ 
+A repository of 5,744 modules for Puppet
+and Puppet Enterprise® IT automation software
+Publish a Module Sign Up Log In
+What do you want to automate?
+
+Supported/Approved
+
+Operating System
+
+With Tasks?
+
+avatar
+saz/timezone by: Steffen Zieger
+Manage timezone settings via Puppet
+Project URL Report issues RSS Feed
+Latest version is compatible with:
+Puppet Enterprise 2018.1.x, 2017.3.x, 2017.2.x, 2017.1.x, 2016.4.x
+Puppet >= 4.9.1 < 6.0.0
+RedHat, Ubuntu, Debian, Scientific, CentOS, OracleLinux, Gentoo, ArchLinux
+Tags: debian ubuntu redhat timezone archlinux centos gentoo scientificlinux
+To use this module, add this declaration to your Puppetfile:
+
+
+mod 'saz-timezone', '5.0.2'
+Learn more about managing modules with a Puppetfiledownload latest tar.gz
+To manually install this module with puppet module tool:
+
+
+puppet module install saz-timezone --version 5.0.2
+ 1,228,158
+Latest version: 1,022
+Quality Score5.0
+No change with last releasedetails
+Community Rating3.7
+Based on 44 questions answereddetails
+Tell us about this module
+How helpful are the docs?
+not at allhelpful
+How easy to use?
+hardeasy
+Does what it promises? Y N
+Works without changes? Y N
+Used in production? Y N
+Version 5.0.2 released Jul 1st 2018 Select another release:   Download
+README
+ 
+Dependencies
+ 
+Compatibility
+ 
+License
+ 
+Scores
+puppet-timezone Build Status
+Manage timezone settings via Puppet
+
+Supported Puppet versions
+Puppet >= 4
+Last version supporting Puppet 3: v3.5.0
+Usage
+Set timezone to UTC
+class { 'timezone':
+    timezone => 'UTC',
+}
+Set timezone to Europe/Berlin
+class { 'timezone':
+    timezone => 'Europe/Berlin',
+}
+Other class parameters
+ensure: present or absent, default: present
+autoupgrade: true or false, default: false. Auto-upgrade package, if there is a newer version
+hwutc: true or false, default: undef. This parameter will ensure that the real time clock is set to UTC rather than the local timezone. This is not supported on all platforms and will fail if you try and set it on an unsupported platform. A typical error message from the timedatectl command, if this value is set to false would be:
+Warning: The system is configured to read the RTC time in the local time zone.
+         This mode can not be fully supported. It will create various problems
+         with time zone changes and daylight saving time adjustments. The RTC
+         time is never updated, it relies on external facilities to maintain it.
+         If at all possible, use RTC in UTC by calling
+         'timedatectl set-local-rtc 0'.
+
+Overview
+Product
+Solutions
+Resource Library
+Company
+Open Source Projects
+Security
+Resources
+Get Help
+Find a Partner
+Training
+Downloads
+Site Map
+Connect
+Contact Us
+Events
+Blog
+Join our mailing list
+Get our monthly newsletter and the occasional email we think you'll like.
+
+
+Enter your email
+ TwitterLinkedInFacebookYoutubeGoogle+
+LegalPrivacy PolicyTerms of Use© 2018 Puppet
