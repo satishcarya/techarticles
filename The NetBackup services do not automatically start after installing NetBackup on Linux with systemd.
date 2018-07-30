@@ -1,0 +1,179 @@
+The NetBackup services do not automatically start after installing NetBackup on Linux with systemd.
+Problem
+After a NetBackup 7.7.1, 7.7.2 or 7.7.3 install or upgrade on Linux Red Hat version 7 update 2 and SUSE 12 SP1 with systemd the pbx_exchange service fails to start upon reboot. 
+
+Note: Please refer Software Compatibility List (SCL) for platform supportability. 
+https://www.veritas.com/support/en_US/article.000033647 
+
+ 
+Error Message
+There are no error messages for pbx (private branch exchange) daemon upon reboot because the daemon/service is not started. However, an Administrator could see an error while opening the Administrative Console or while executing a command. 
+
+Example: While opening remote NetBackup Administration Console: 
+Unable to login, status: 526 
+
+Example: While executing the command: 
+# nbemmcmd -listhosts 
+Failed to initialize EMM connection.  Verify that network access to the EMM server is available and that the services nbemm and pbx_exchange are running on the EMM server. (195) 
+ 
+Cause
+
+Previous versions of Red Hat Enterprise Linux, which were distributed with SysV init or Upstart, used init scripts located in the /etc/rc.d/init.d/ directory. These init scripts were typically written in Bash, and allowed the system administrator to control the state of services and daemons in their system. These init scripts have been replaced with service units. Service units end with the .service file extension and serve a similar purpose as init scripts. 
+
+The NetBackup install script does not create the service unit for systemd but NetBackup is supported on Red Hat Linux 7 update 2 and SUSE 12 SP1 because systemd will run traditional init scripts. Additionally the Linux systemd will attempt to convert traditional init scripts to systemd services files by way of the systemd-sysv-generator tool.
+
+While this conversion process is successful for netbackup it will fail for for vxpbx_exchanged. 
+The NetBackup install creates two startup scripts, there's one for netbackup and the second for vxpbx. 
+Example:​
+/etc/init.d/netbackup
+/etc/init.d/vxpbx_exchanged -> /opt/VRTSpbx/bin/vxpbx_exchanged
+
+Note that /etc/init.d/vxpbx_exchanged is a link /opt/VRTSpbx/bin/vxpbx_exchanged.
+
+The systemd-sysv-generator tool attempts to convert traditional init scripts and places them in /var/run/systemd/generator.late folder at boot. NetBackup will be fully operational after the installation but only until the first reboot as that's when the conversion process take place. After reboot the conversion is successful for netbackup but not for vxpbx_exchanged because vxpbx_exchanged is a link to / opt/VRTSpbx/bin/vxpbx_exchanged. With no vxpbx_exchanged.service file, pbx_exchange service does not start and because it's a prerequisite for netbackup, the  netbackup.service fails to start those NetBackup services dependent upon pbx_exchange .
+
+This is an example list of /etc/init.d  after the initial install: 
+# ls -l 
+
+-rw-r--r--. 1 root root 13948 Sep 16 07:51 functions
+-r-x------. 1 root root 20969 Jan 20 12:59 netbackup
+-rwxr-xr-x. 1 root root  2989 Sep 16 07:51 netconsole
+-rwxr-xr-x. 1 root root  6630 Sep 16 07:51 network
+-rw-r--r--. 1 root root  1160 Oct 12 08:39 README
+-rwxr-xr-x. 1 root root  2437 Jun 26  2015 rhnsd
+-rwxr-xr-x. 1 root root 40673 Jan 13 02:29 vmware-tools
+lrwxrwxrwx. 1 root root    32 Jan 20 12:57 vxpbx_exchanged -> /opt/VRTSpbx/bin/vxpbx_exchanged 
+
+
+This is an example list of  /var/run/systemd/generator.late  after the reboot. 
+# ls -l
+
+-rw-r--r--. 1 root root 454 Jan 22 12:52 netbackup.service
+-rw-r--r--. 1 root root 453 Jan 22 12:52 netconsole.service
+-rw-r--r--. 1 root root 728 Jan 22 12:52 network.service
+-rw-r--r--. 1 root root 715 Jan 22 12:52 rhnsd.service
+drwxr-xr-x. 2 root root 100 Jan 22 12:52 runlevel2.target.wants
+drwxr-xr-x. 2 root root 100 Jan 22 12:52 runlevel3.target.wants
+drwxr-xr-x. 2 root root 100 Jan 22 12:52 runlevel4.target.wants
+drwxr-xr-x. 2 root root 100 Jan 22 12:52 runlevel5.target.wants
+-rw-r--r--. 1 root root 572 Jan 22 12:52 vmware-tools.service 
+
+In the example above note that all of the init scripts in /etc/init.d are converted to .service files in  /var/run/systemd/generator.late  with the exception of   vxpbx_exchanged. 
+
+Additional information about systemd, systemd services files,  and systemd-sysv-generator tool:
+Source: Linux RHEL 7.2/SUSE 12 SP1 
+/etc/rc.d/init.d/README 
+
+You are looking for the traditional init scripts in /etc/rc.d/init.d, and they are gone? 
+Here's an explanation on what's going on: You are running a systemd-based OS where traditional init scripts have been replaced by native systemd services files. Service files provide very similar functionality to init scripts. To make use of service files simply invoke "systemctl", which will output a list of all currently running services (and other units). Use "systemctl list-unit-files" to get a listing of all known unit files, including stopped, disabled and masked ones. Use "systemctl start foobar.service" and "systemctl stop foobar.service" to start or stop a service, respectively. For further details, please refer to systemctl(1). 
+
+Note that traditional init scripts continue to function on a systemd system. An init script /etc/rc.d/init.d/foobar is implicitly mapped into a service unit foobar.service during system initialization. 
+End README.
+
+Reference: Ubuntu 15.04 Server With Systemd - Richard Peterson.
+System V Scripts and generated systemd service files:
+/etc/init.d and /run/systemd/generator.late 
+
+Some services are not yet configured natively for use by systemd. They are installed without a systemd service file. Instead a SysV script is installed in the /etc/init.d directory. The systemd-sysv-generator tool automatically reads this script and generates a corresponding systemd unit file in the /var/run/systemd/generator.late directory, which, in turn, will use the script to manage the service.
+
+Additional reference:
+Red Hat Enterprise Linux 7 System Administrator's Guide (Chapter 8.2). 
+https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/sect-Managing_Services_with_systemd-Services.html 
+
+SUSE Linux Enterprise Server 12 
+https://www.suse.com/documentation/sles-12/ 
+ 
+Solution
+A fix for the issue is included in NetBackup 8.0. 
+
+Additional information can be found in the Veritas NetBackup Emergency Engineering Binary Guide: 
+https://www.veritas.com/docs/000004603 
+ 
+Workaround
+Add  vxpbx_exchanged to systemd control.
+​A fter installing NetBackup remove the link for vxpbx_exchanged and copy the startup file directly to /etc/init.d.
+# cd /etc/init.d
+# rm vxpbx_exchanged
+# cp  /opt/VRTSpbx/bin/vxpbx_exchanged ./vxpbx_exchanged
+ 
+This is the updated folder list of  /etc/init.d 
+# ls -l 
+-rw-r--r--. 1 root root 13948 Sep 16 07:51 functions
+-r-x------. 1 root root 20969 Jan 20 12:59 netbackup
+-rwxr-xr-x. 1 root root  2989 Sep 16 07:51 netconsole
+-rwxr-xr-x. 1 root root  6630 Sep 16 07:51 network
+-rw-r--r--. 1 root root  1160 Oct 12 08:39 README
+-rwxr-xr-x. 1 root root  2437 Jun 26  2015 rhnsd
+-rwxr-xr-x. 1 root root 40673 Jan 13 02:29 vmware-tools
+-r-xr-x---. 1 root root 11008 Feb  9 11:26 vxpbx_exchanged
+Reboot the system:
+​ # systemctl reboot
+Check that vxpbx and NetBackup services have started (see example outputs below)
+# systemctl status vxpbx_exchanged 
+● vxpbx_exchanged.service - SYSV: Provides Veritas Private Branch Exchange 
+   Loaded: loaded (/etc/rc.d/init.d/vxpbx_exchanged) 
+   Active: active (running) since Mon 2016-02-08 09:24:37 EST; 1h 47min ago 
+     Docs: man:systemd-sysv-generator(8) 
+  Process: 1356 ExecStart=/etc/rc.d/init.d/vxpbx_exchanged start (code=exited, status=0/SUCCESS)
+ 
+​ # systemctl status netbackup.service (truncated output)
+● netbackup.service - LSB: NetBackup
+   Loaded: loaded (/etc/rc.d/init.d/netbackup) 
+   Active: active (running) since Mon 2016-02-08 09:25:21 EST; 1h 47min ago 
+     Docs: man:systemd-sysv-generator(8) 
+  Process: 2573 ExecStart=/etc/rc.d/init.d/netbackup start (code=exited, status=0/SUCCESS)
+​ Alternate way to check that vxpbx and netbackup services have started.
+​ # systemctl list-units --type service | egrep -i "netbackup|vxpbx"
+netbackup.service                  loaded active running LSB: NetBackup
+vxpbx_exchanged.service            loaded active running SYSV: Provides Veritas Private Branch Exchange
+Check for NetBackup services.
+# /usr/openv/netbackup/bin/bpps -x
+NB Processes
+------------
+root      2598     1  0 09:24 ?        00:00:00 /usr/openv/netbackup/bin/private/nbatd -c /usr/openv/var/global/vxss/eab/data
+root      2601     1  0 09:24 ?        00:00:00 /usr/openv/netbackup/bin/vnetd -standalone
+root      2611     1  0 09:24 ?        00:00:00 /usr/openv/netbackup/bin/bpcd -standalone
+root      2694     1  0 09:24 ?        00:00:00 /usr/openv/netbackup/bin/nbdisco
+root      2763     1  1 09:24 ?        00:01:36 /usr/openv/db//bin/NB_dbsrv @/usr/openv/var/global/server.conf @/usr/openv/var/global/databases.conf -hn 5
+root      2828     1  0 09:25 ?        00:00:00 /usr/openv/netbackup/bin/nbevtmgr
+root      2857     1  0 09:25 ?        00:00:01 /usr/openv/netbackup/bin/nbaudit
+root      2970     1  0 09:25 ?        00:00:02 /usr/openv/netbackup/bin/nbemm
+root      2975     1  0 09:25 ?        00:00:01 /usr/openv/netbackup/bin/nbrb
+root      3113     1  0 09:25 ?        00:00:01 /usr/openv/netbackup/bin/bprd
+root      3129     1  0 09:25 ?        00:00:00 /usr/openv/netbackup/bin/bpcompatd
+root      3139     1  0 09:25 ?        00:00:00 /usr/openv/netbackup/bin/nbjm
+root      3168     1  0 09:25 ?        00:00:01 /usr/openv/netbackup/bin/nbpem
+root      3185  3168  0 09:25 ?        00:00:00 /usr/openv/netbackup/bin/nbproxy dblib nbpem
+root      3191  3139  0 09:25 ?        00:00:00 /usr/openv/netbackup/bin/nbproxy dblib nbjm
+root      3193     1  0 09:25 ?        00:00:00 /usr/openv/netbackup/bin/bpdbm
+root      3196     1  0 09:25 ?        00:00:01 /usr/openv/netbackup/bin/nbstserv
+root      3197  3193  0 09:25 ?        00:00:01 /usr/openv/netbackup/bin/bpjobd
+root      3288     1  0 09:25 ?        00:00:01 /usr/openv/netbackup/bin/nbrmms
+root      3374     1  0 09:25 ?        00:00:01 /usr/openv/netbackup/bin/nbsl
+root      3378     1  0 09:25 ?        00:00:00 /usr/openv/netbackup/bin/nbim
+root      3424     1  0 09:25 ?        00:00:02 /usr/openv/netbackup/bin/nbars
+root      3473     1  0 09:25 ?        00:00:00 /usr/openv/netbackup/bin/nbvault
+root      3489     1  0 09:25 ?        00:00:00 /usr/openv/netbackup/bin/nbcssc -a NetBackup
+root      3515     1  0 09:25 ?        00:00:00 /usr/openv/netbackup/bin/nbsvcmon
+
+
+MM Processes
+------------
+root      3025     1  0 09:25 ?        00:00:00 vmd
+
+
+Shared Veritas Processes
+-------------------------
+root      2564     1  0 09:24 ?        00:00:00 /opt/VRTSpbx/bin/pbx_exchange
+NetBackup is now under systemd control.
+To control NetBackup use systemd commands.
+To stop NetBackup and vxpbx:
+systemctl stop netbackup.service
+systemctl stop vxpbx_exchanged.service
+To start NetBackup and vxpbx:
+systemctl start vxpbx_exchanged.service
+systemctl start netbackup.service
+ Additional information:
+All NetBackup commands remain fully functional.
+During an upgrade the vxpbx_exchanged link and or file could be updated. When the file and or link is updated, repeat the work around and update the vxpbx_exchanged file to the latest version.
+Terms of use for this information are found in Legal Notices.
