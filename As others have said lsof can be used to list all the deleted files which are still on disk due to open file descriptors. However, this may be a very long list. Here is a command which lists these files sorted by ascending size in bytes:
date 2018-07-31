@@ -1,0 +1,3 @@
+As others have said lsof can be used to list all the deleted files which are still on disk due to open file descriptors. However, this may be a very long list. Here is a command which lists these files sorted by ascending size in bytes:
+
+sudo lsof -F sn0 | tr -d '\000' | grep deleted | sed 's/^[a-z]*\([0-9]*\)n/\1 /' | sort -n
