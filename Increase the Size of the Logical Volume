@@ -1,0 +1,62 @@
+For Linux Cloud Servers and Linux Dedicated Servers.
+Follow the steps below to increase the size of the logical volume and allocate additional space on one of your partitions.
+Step 1
+First, log into your server via SSH.
+Step 2
+Once logged in, type df -h at the command prompt and hit ENTER. The partition and logical volume sizes will be listed including the used disk space. In the image below, the var logical volume is 4GB. Assume that ~9GB of web content will be uploaded to the /var folder. The disk space needs to be increased before there is enough space to upload the content.
+Further Explanation
+Abbreviation	Explanation
+df	The disk free command to show hard disk freespace
+-h	Command option to display the output in human-readable format (KB, MB or GB)
+Type 'df -h' and press Enter
+Type 'df -h' and press Enter
+Step 3
+Next, type fdisk -l to view the total hard disk(s) size and partitions on the disk. It can also be noticed here that the physical partition /dev/sda3 is using Linux LVM. Type 'fdisk -l' and press Enter
+Type 'fdisk -l' and press Enter
+Step 4
+Type the pvs command and press Enter.
+Note for Cloud Servers: The PSize value listed will often be bit smaller than the value listed by the fdisk command output. If the difference in size between the fdisk output and PSize is more than 100GB, please reference What if my physical volume size has not changed after increasing disk space? before continuing.
+
+Type 'pvs' and press Enter
+Type 'pvs' and press Enter
+Further Explanation
+Abbreviation	Explanation
+pvs	Physical Volume Show command
+PV	Physical Volume path
+VG	Volume Group name
+Fmt	LVM Format
+Attr	Physical volume attributes. The a means that the physical volume is allocatable and not read-only.
+PSize	Physical Size of the physical volume
+PFree	Physical Free space left on the physical volume
+Step 5
+As stated above, our scenario requires roughly 9GB of data to be uploaded to the /var folder. Since the logical volume assigned to /var is only 4GB, we will increase this to 10GB using the lvextend command. The command below is to be used as reference only as the parameters will be different depending on your scenario.
+The format for the lvextend command is as follows:
+lvextend -L +6G /dev/mapper/vg00-var
+
+Further Explanation
+Input	Explanation
+lvextend	The logical volume extend command used to increase logical volumes
+-L +6G	Command option to increase a Logical volume by 6 Gigabytes
+/dev/mapper/vg00-var	The path for the logical volume to increase
+Type 'lvextend -L +6G /dev/mapper/vg00-var' and press Enter
+Type 'lvextend -L +6G /dev/mapper/vg00-var' and press Enter
+Step 6
+Type df -h to display the disk free space once again. The lvextend operation finished successfully in the last step however the /dev/mapper/vg00-var size is still only showing 4.0G. This is because, while the logical volume was increased successfully, the file system needs to be extended to take advantage of the full space of the logical volume. Type 'df -h' and press Enter
+Type 'df -h' and press Enter
+Step 7
+Type lvs to show the logical volume information once again. Here, we can confirm that the logical volume has successfully been extended to 10 gigabytes. In the next steps, we will increase the file system to match the logical volume size. Type 'lvs' and press Enter
+Type 'lvs' and press Enter
+Step 8
+Type mount and press ENTER to display the mounted file systems. From the output, we find that the /dev/mapper/vg00-var logical volume is using xfs (with the introduction of CentOS 6, the default filesystem is ext4). Type 'mount' and press Enter
+Type 'mount' and press Enter
+Step 9
+To increase the file system to match that of the logical volume, we will use the xfs_growfs command if the filesystem uses xfs or resize2fs if the filesystem is ext4.
+
+Typing xfs_growfs /var or resize2fs /dev/mapper/vg00-var (depending on which filesystem is used on your system) will extend the file system to the 10 gigabyte limit of the logical volume.
+Please note:
+Some older operating systems will need to use the resize4fs command if the resize2fs command does not work.
+Type the appropriate command and press Enter
+Type the appropriate command and press Enter
+Step 10
+Type df -h to display the disk free space to confirm that the file system has been extended. Type 'df -h' and press Enter
+Type 'df -h' and press Enter
