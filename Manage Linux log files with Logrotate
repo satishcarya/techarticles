@@ -1,0 +1,211 @@
+Manage Linux log files with Logrotate
+Learn how to use the Logrotate program to administer, back up, and monitor log files on Linux.
+
+By Jim McIntyre | December 27, 2000, 12:00 AM PST
+
+Recommended Content:
+Live Event: Learn the fundamentals of Big Data & Machine Learning from the experts.
+
+Join us for a free, full-day training event in a city near you - Sydney, Melbourne, Brisbane & Perth. Get access to tips & tricks, industry best-practices and Q&A with the Google Cloud team. ...
+ Register Now
+
+7
+3
+
+Log files are the most valuable tools available for Linux system security. The logrotate program is used to provide the administrator with an up-to-date record of events taking place on the system. The logrotate utility may also be used to back up log files, so copies may be used to establish patterns for system use. In this Daily Drill Down, I’ll cover the following topics:
+The logrotate configuration
+Setting defaults for logrotate
+Using the include option to read other configuration files
+Setting rotation parameters for specific files
+Using the include option to override defaults
+
+The logrotate program
+The logrotate program is a log file manager. It is used to regularly cycle (or rotate) log files by removing the oldest ones from your system and creating new log files. It may be used to rotate based on the age of the file or the file’s size, and usually runs automatically through the cron utility. The logrotate program may also be used to compress log files and to configure e-mail to users when they are rotated.
+
+The logrotate configuration
+The logrotate program is configured by entering options in the /etc/logrotate.conf file. This is a text file, which may contain any of the configuration options listed in the table below. The options entered in /etc/logrotate.conf may be used to set configuration parameters for any log file on the system. These options may also be used to allow logrotate to read configuration parameters from other log files, by using the include parameter.
+
+Option
+Function
+compress	This is used to compress the rotated log file with gzip.
+nocompress	This is used when you do not want to compress rotated log files.
+copytruncate	This is used when processes are still writing information to open log files. This option copies the active log file to a backup and truncates the active log file.
+nocopytruncate	This copies the log files to backup, but the open log file is not truncated.
+create mode owner group	This rotates the log file and creates a new log file with the specified permissions, owner, and group. The default is to use the same mode, owner, and group as the original file.
+nocreate	This prevents the creation of a new log file.
+delaycompress	When used with the compress option, the rotated log file is not compressed until the next time it is cycled.
+nodelaycompress	This overrides delaycompress. The log file is compressed when it is cycled.
+errors address	This mails logrotate errors to an address.
+ifempty	With this, the log file is rotated even if it is empty. This is the default for logrotate.
+notifempty	This does not rotate the log file if it is empty.
+mail address	This mails log files that are cycled to an address. When mail log files are cycled, they are effectively removed from the system.
+nomail	When mail log files are cycled, a copy is not mailed.
+olddir directory	With this, cycled log files are kept in the specified directory. This directory must be on the same filesystem as the current log files.
+noolddir	Cycled log files are kept in the same directory as the current log files.
+prerotate/endscript	These are statements that enclose commands to be executed prior to a log file being rotated. The prerotate and endscript keywords must appear on a line by themselves.
+postrotate/endscript	These are statements that enclose commands to be executed after a log file has been rotated. The postrotate and endscript keywords must appear on a line by themselves.
+daily	This is used to rotate log files daily.
+weekly	This is used to rotate log files weekly.
+monthly	This is used to rotate log files monthly.
+rotate count	This specifies the number of times to rotate a file before it is deleted. A count of 0 (zero) means no copies are retained. A count of 5 means five copies are retained.
+tabootext [+] list	This directs logrotate to not rotate files with the specified extension. The default list of extensions is .rpm-orig, .rpmsave, v, and ~.
+size size	With this, the log file is rotated when the specified size is reached. Size may be specified in bytes (default), kilobytes (sizek), or megabytes (sizem).
+
+The /etc/logrotate.conf file
+The /etc/logrotate.conf file is the default configuration file for logrotate. The default /etc/logrotate.conf file installed with Red Hat Linux is shown below:
+# see "man logrotate" for details
+# rotate log files weekly
+weekly
+
+# keep 4 weeks worth of backlogs
+rotate 4
+
+# send errors to root
+errors root
+# create new (empty) log files after rotating old ones
+create
+
+# uncomment this if you want your log files compressed
+#compress
+1
+# RPM packages drop log rotation information into this directory
+include /etc/logrotate.d
+
+# no packages own lastlog or wtmp —we'll rotate them here
+/var/log/wtmp {
+    monthly
+    create 0664 root utmp
+    rotate 1
+}
+
+/var/log/lastlog {
+    monthly
+    rotate 1
+}
+
+# system-specific logs may be configured here
+
+Setting defaults for logrotate
+Default configuration settings are normally placed close to the beginning of the logrotate.conf file. These settings are usually in effect system-wide. The default settings for logrotate on this system are established in the first 12 lines of the file.
+
+The third line
+weekly
+
+specifies that all log files will be rotated weekly.
+
+The fifth line
+rotate 4
+
+specifies that four copies of old log files are retained before the files are cycled. Cycling refers to removing the oldest log files and replacing them with new copies.
+
+The seventh line
+errors root
+
+sends all logrotate error messages to root.
+
+The ninth line
+create
+
+configures logrotate to automatically create new log files. The new log files will have the same permissions, owner, and group as the file being rotated.
+
+The eleventh line
+#compress
+
+prevents logrotate from compressing log files when they are rotated. Compression is enabled by removing the comment (#) from this line.
+
+Using the include option
+The include option allows the administrator to take log file rotation information, which may be installed in several files, and use it in the main configuration file. When logrotate finds the include option on a line in logrotate.conf, the information in the file specified is read as if it appeared in /etc/logrotate.conf.
+
+Line 13 in /etc/logrotate.conf
+include /etc/logrotate.d
+
+tells logrotate to be read in the log rotation parameters, which are stored in the files contained in the /etc/logrotate.d directory. The include option is very useful when RPM packages are installed on a system. RPM packages’ log rotation parameters will typically install in the /etc/logrotate.d directory.
+
+The include option is important. Some of the applications that install their log rotation parameters to /etc/logrotate.d by default are apache, linuxconf, samba, cron, and syslog. The include option allows the parameters from each of these files to be read into logrotate.conf.
+
+Using the include option in /etc/logrotate.conf allows the administrator to configure a rotation policy for these packages through a single configuration file.
+
+Using include to override defaults
+When a file is read by /etc/logrotate.conf, the rotation parameters specified in the include will override the parameters specified in the logrotate file. An example of /etc/logrotate.conf being overridden is shown below:
+#Log rotation parameters for linuxconf
+/var/log/htmlaccess.log
+{ errors jim
+notifempty
+nocompress
+weekly
+prerotate
+/usr/bin/chattr -a /var/log/htmlaccess.log
+endscript
+postrotate
+/usr/bin/chattr +a /var/log/htmlaccess.log
+endscript
+}
+/var/log/netconf.log
+{ nocompress
+monthly
+}
+
+In this example, when the /etc/logrotate.d/linuxconf file is read by /etc/logrotate.conf, the following options will override the defaults specified in /etc/logrotate.conf:
+Notifempty
+errors jim
+
+The nocompress and weekly options do not override any options contained in /etc/logrotate.conf.
+
+Setting parameters for a specific file
+Configuration parameters for a specific file are often required. A common example would be to include a section in the /etc/logrotate.conf file to rotate the /var/log/wtmp file once per month and keep only one copy of the log. When configuration is required for a specific file, the following format is used:
+#comments
+/full/path/to/file
+{
+option(s)
+}
+
+The following entry would cause the /var/log/wtmp file to be rotated once a month, with one backup copy retained:
+#Use logrotate to rotate wtmp
+/var/log/wtmp
+{
+monthly
+rotate 1
+}
+Although the opening bracket may appear on a line with other text or commands, the closing bracket must be on a line by itself.
+Using the prerotate and postrotate options
+The section of code below shows a typical script in /etc/logrotate.d/syslog. This section applies only to /var/log/messages. On a production server, /etc/logrotate.d/syslog would probably contain similar entries.
+/var/log/messages
+{
+prerotate
+/usr/bin/chattr -a /var/log/messages
+endscript
+postrotate
+/usr/bin/kill -HUP syslogd
+/usr/bin/chattr +a /var/log/messages
+endscript
+}
+
+The format for this script uses the following methods:
+The first line, /var/logmessages, declares the file for which this script will be used.
+The curly braces,{ }, are used to enclose the entire script. All commands contained within these braces will be run on the /var/log/messages file.
+The prerotate command specifies actions to be taken prior to the file being rotated by logrotate.
+The command /usr/bin/chattr -a is run to remove the append-only attribute from /var/log/messages.
+The endscript command marks the end of the prerotate portion of this script.
+The next line, postrotate, specifies the following commands are to be run on /var/log/messages after the file has been rotated by logrotate.
+The command /usr/bin/killall -HUPsyslogd is run to reinitiate the system logging daemon, syslogd.
+The next command, /usr/bin/chattr +a /var/log/messages, reassigns the append-only attribute to the /var/log/messages file. This means the file may only be seen in append mode. This prevents the file from being overridden by any other program or user.
+The endscript command appears on a line by itself and marks the end of the postrotate portion of this script.
+The last curly brace,}, marks the end of commands to be applied to the /var/log/messages file.
+
+Running logrotate
+There are three steps involved in running logrotate:
+Identify the log files on your system.
+Create rotation schedules and parameters for the log files.
+Run logrotate through the cron daemon.
+
+The code below shows the default cronjob shipped with Red Hat Linux to allow logrotate to run daily:
+#/etc/cron.daily/logrotate
+#! /bin/sh
+
+/usr/sbin/logrotate   /etc/logrotate.conf
+
+This cronjob allows logrotate to run daily with the rotation parameter specified in /etc/logrotate.conf.
+
+Conclusion
+Log rotation is the first step in log file management. The logrotate utility provides the Linux administrator with the ability to maintain a log file rotation policy and to retain copies of log files to assist in establishing patterns related to system usage. In this Daily Drill Down, we looked at the installation and configuration of logrotate, used the include option to read configuration files related to RPM packages, and ran logrotate as a cronjob. We also discussed the proper methods for restarting logrotate after the log rotation procedure is completed.
+The authors and editors have taken care in preparation of the content contained herein but make no expressed or implied warranty of any kind and assume no responsibility for errors or omissions. No liability is assumed for any damages. Always have a verified backup before making any changes.
