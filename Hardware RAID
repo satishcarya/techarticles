@@ -1,0 +1,119 @@
+3Ware Eskalad series ¶
+1. Vendor information
+3Ware (​http://www.3ware.com) card are usually well supported on Linux.
+Theses cards are often considered as some of the bests hardware RAID controllers for GNU/Linux or BSD systems.
+3Ware supports Linux and provide an opensource kernel driver which has been part of Linux for ages
+
+
+2. Linux kernel drivers
+There are two drivers for 3ware cards:
+
+Driver	Supported cards
+3w_xxxx	3Ware Eskalad 7000 and 8000 series
+3w_9xxx	3Ware Eskaled 9000 series
+You should not expect any problems with theses drivers which are known to be mature and stable.
+We don't know any current Linux distrubtion which miss theses drivers so no additional step should be required to get it working.
+
+Some lspci -nn output examples:
+
+03:01.0 RAID bus controller [0104]: 3ware Inc 9550SX SATA-RAID [13c1:1003]
+04:02.0 RAID bus controller [0104]: 3ware Inc 7xxx/8xxx-series PATA/SATA-RAID [13c1:1001] (rev 01)
+
+3. Management and reporting tools
+No opensource tools for 3Ware cards currently exist. However, 3Ware provides two proprietary utilities for x86 and x86_64 linux systems.
+
+3.1. tw_cli
+tw_cli is a command line tool to manage and monitor Eskaled cards. It works fine with 7000 and 8000 cards, as well as with the 9000 series.
+Latest version is 2.08.00.008, available in 3Ware applications package release 9.5.1.1.
+
+AVAILABLE IN OUR DEBIAN PACKAGES REPOSITORY FOR BOTH I386 AND AMD64 ARCHITECTURES
+
+3.1.1. Quickstart guide for tw_cli
+List available controllers:
+
+server:~# tw-cli info
+
+Ctl   Model        (V)Ports  Drives   Units   NotOpt  RRate   VRate  BBU
+------------------------------------------------------------------------
+c0    8006-2LP     2         2        1       0       2       -      -
+All arrays and disks from controller "c0":
+
+server:~# tw-cli /c0 show
+
+Unit  UnitType  Status         %RCmpl  %V/I/M  Stripe  Size(GB)  Cache  AVrfy
+------------------------------------------------------------------------------
+u0    RAID-1    OK             -       -       -       153.385   OFF    -
+
+Port   Status           Unit   Size        Blocks        Serial
+---------------------------------------------------------------
+p0     OK               u0     153.38 GB   321672960     VNRD3EC4C7J1SM
+p1     OK               u0     153.38 GB   321672960     VNRD3EC4C7HZZM
+Print all bios versions
+
+server:~# tw-cli /c0 show bios firmware monitor
+/c0 Bios Version = BE7X 1.08.00.048
+/c0 Firmware Version = FE8S 1.05.00.068
+/c0 Boot Loader Version = ME7X 1.01.00.040
+Full tw_cli documentation can be downloaded for 3Ware website: ​http://www.3ware.com/support/UserDocs/CLIGuide-9.5.1.1.pdf
+
+3.1.2. Enabling/Disabling Write Cache
+//server> info c0
+
+Unit  UnitType  Status         %RCmpl  %V/I/M  Stripe  Size(GB)  Cache  AVrfy
+------------------------------------------------------------------------------
+u0    RAID-1    OK             -       -       -       232.885   OFF    -      
+Write cache is OFF. Let's turn it ON.
+
+//server> set cache c0 u0 on
+Setting Write Cache Policy on /c0/u0 to [on] ... Done.
+
+
+//server> info c0
+
+Unit  UnitType  Status         %RCmpl  %V/I/M  Stripe  Size(GB)  Cache  AVrfy
+------------------------------------------------------------------------------
+u0    RAID-1    OK             -       -       -       232.885   ON     -      
+3.1.3. My opinion about tw_cli
+tw_cli is really a good utility. It show all needed informations in just one command.
+Moreover, it show rebuild status in percent when the array is rebuilding and it's easily parsable because 3Ware filled the not relevant columns with a dash instead of leting them empty. Good job !
+
+3.2. 3ware-status
+3ware-status is a package I wrote by myself. It includes a python wrapper around tw_cli command and an initscript which daemonize the launch of the wrapper.
+It also handles failure detection and report it by mail and syslog. It also handle unexpected output changes and reminders until the status is fine again.
+
+GRAB-IT NOW FROM OUR REPOSITORY
+
+Output example:
+
+server:~# 3ware-status
+-- Arrays informations --
+-- ID   Type    Size    Status
+c0u0    RAID1   153G    OK
+
+-- Disks informations
+-- ID   Model           Status
+c0u0p0  VNRD3EC4C7J1SM  OK
+c0u0p1  VNRD3EC4C7HZZM  OK
+3.3. 3dm2
+3DM2 is a Web applications with an embedded web servers that allows to do the same things than with tw_cli but has a GUI.
+It works fine and doesn't rely on insane dependencies like java, tomcat or something else. However it use an awfull InstallShield installer which should be avoided in any case.
+
+We're preparing Debian packages and it will be available soon.
+
+Here is a screenshot to see how it looks:
+3dm2_degraded_array_screenshot
+
+This tool does mail reporting too, with configurable alert level.
+
+
+4. BIOS upgrade from a Linux system
+4.1. Eskalad 7000 and 8000 series
+Theses cards can't be updated throught 3Ware tw_cli or 3dm2. However a quick hack to boot a FreeDOS floppy from GRUB can be used. I will write more about this later.
+
+4.2. Eskalad 9000 series
+Theses controllers can be updated using both tw_cli or 3dm2. From 3dm2, click on Management tab and choose Controller Settings. Check the bottom of the page. The interface may stop responding a few seconds. Don't be affraid, just wait. With tw-cli, use the "update" feature:
+
+server:~# tw-cli help update
+
+  update fw=filename_with_path [force]                  (9000 series)
+Off course, a reboot is needed after upgrading the BIOS.
