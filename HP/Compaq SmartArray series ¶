@@ -1,0 +1,184 @@
+1. Vendor information
+Theses HP/Compaq cards are usually well supported on Linux.
+Proliant servers usually (always?) have this kind of controllers.
+HP supports Linux and provide an opensource kernel driver which has been part of Linux for ages.
+
+
+2. Linux kernel drivers
+There is only one drivers to handle all cards:
+
+Driver	Supported cards
+cciss	All SmartArray
+You should not expect any problems with theses drivers which are known to be mature and stable.
+We don't know any current Linux distrubtion which miss theses drivers so no additional step should be required to get it working.
+
+Some lspci -nn output examples:
+
+02:04.0 RAID bus controller [0104]: Compaq Computer Corporation Smart Array 64xx [0e11:0046] (rev 01)
+0f:00.0 RAID bus controller [0104]: Hewlett-Packard Company Smart Array Controller [103c:3230] (rev 03)
+02:00.0 RAID bus controller [0104]: Hewlett-Packard Company Smart Array Gen8 Controllers [103c:323b] (rev 01)
+04:00.0 RAID bus controller [0104]: Hewlett-Packard Company Smart Array G6 controllers [103c:323a] (rev 01)
+2.1. Devices nodes note
+This driver doesn't use the regular SCSI stack, so don't expect to find your logical drives as /dev/sdX.
+Here is an example:
+
+server:~# ls -lah /dev/cciss/
+total 0
+drwxr-xr-x  2 root root     160 2008-08-28 14:36 .
+drwxr-xr-x 14 root root    3,1K 2008-08-28 14:36 ..
+brw-rw----  1 root disk 104,  0 2008-08-28 14:36 c0d0
+brw-rw----  1 root disk 104,  1 2008-08-28 14:36 c0d0p1
+brw-rw----  1 root disk 104,  2 2008-08-28 14:36 c0d0p2
+brw-rw----  1 root disk 104,  3 2008-08-28 14:36 c0d0p3
+brw-rw----  1 root disk 104, 16 2008-08-28 14:36 c0d1
+brw-rw----  1 root disk 104, 17 2008-08-28 14:36 c0d1p1
+/dev/c0d0 means logical drive 0 on controller 0. /dev/c0d0p1 means first partition of logical drive 0 on controller 0.
+In exemple /dev/sda is /dev/c0d0 here. /dev/sdb1 is /dev/c0d1p1.
+
+
+3. Management and reporting tools
+Both opensource and proprietary tools currently exist. 
+Both are edited by HP/Compaq but the opensource one (cciss-vol-status) only covers monitoring. 
+The proprietary one (hpacucli) adds management features.
+
+3.1. cciss-vol-status
+3.1.1. Quickstart guide
+There's not much options for cciss_vol_status so let's have a look to an example first:
+
+vmware:~# cciss_vol_status /dev/cciss/c*d0
+/dev/cciss/c0d0: (Smart Array 6i) RAID 1 Volume 0 status: OK.
+/dev/cciss/c0d0: (Smart Array 6i) RAID 1 Volume 1 status: OK.
+This command will print status of all arrays. You need to query all controllers (if you have more than one) but query the first logical drive only is fine (otherwise you will have duplicated lines). 
+That's why you should really use /dev/cciss/c*d0.
+
+Please have a look to the manpage to read more about the possible status. 
+In example:
+
+"OK." (0) - The logical drive is in good working order.
+
+"FAILED." (1) - The logical drive has failed, and no i/o to it is poosible.
+
+"Using interim recovery mode." (3) - One or more drives has failed,
+       but not so many that the logical drive can no longer operate.  The failed drives should be replaced as soon as possible.
+
+"Ready for recovery operation." (4) -  Failed drive(s) have been
+       replaced, and the controller is about to begin rebuilding redundant parity data.
+
+"Currently recovering." (5) - Failed drive(s) have been replaced,
+       and the controller is currently rebuilding redundant parity information.
+[...]
+You may have to add /dev/sgX as command parameters to query a external Fibre Channel disk bay. 
+However I don't have such hardware to give a try, so you should refer to the manpage if you need this feature. Please open a ticket and adds some output example if you have such hardware, so I'll be able to update this page (thanks ;))
+
+3.1.2. My opinion about cciss-vol-status
+Despites this tools doesn't provide any high-end feature and can't show anything about physical disks, it's nice for two reasons:
+
+According to the manpage it can reports many kind of issues and is much more powerfull than a tools that just tells good or bad
+It's looks safe to rely on it as it's edited by HP
+3.1.3. Periodic checks
+The package for our repository comes with integration that periodically run the script through an initscript. 
+It reports failures by mail and syslog. It also handle unexpected output changes and reminders until the status is fine again. You don't have anything to do to get it working, just install cciss-vol-status package.
+
+If you have more than one controller you will have to create /etc/default/cciss-vol-statusd and fill it with:
+
+ID=/dev/cciss/c*d0
+3.2. hpacucli
+This tool is a proprietary one created by HP. It can do both reporting and management.
+
+3.2.1. Quickstart guide
+List all controllers:
+
+server:~# hpacucli controller all show
+
+Smart Array 6i in Slot 0      ()
+List arrays on controller in slot 0:
+
+server:~# hpacucli ctrl slot=0 logicaldrive all show status
+
+logicaldrive 1 (33.9 GB, RAID RAID 1+0):  OK
+logicaldrive 2 (136.7 GB, RAID RAID 1+0):  OK
+I don't know why it reports RAID 1+0. This is regular RAID1 arrays.
+
+List physical drives on controller in slot 0:
+
+server:~# hpacucli ctrl slot=0 pd all show status
+
+physicaldrive 1:0 (port 1:id 0, 36.4 GB): OK
+physicaldrive 1:1 (port 1:id 1, 36.4 GB): OK
+physicaldrive 1:2 (port 1:id 2, 146.8 GB): OK
+physicaldrive 1:3 (port 1:id 3, 146.8 GB): OK
+Summarized status:
+
+server:~# hpacucli ctrl slot=0 show config
+
+Smart Array 6i in Slot 0      ()
+
+   array A (Parallel SCSI, Unused Space: 0 MB)
+
+      logicaldrive 1 (33.9 GB, RAID 1+0, OK)
+
+      physicaldrive 2:0   (port 2:id 0 , Parallel SCSI, 36.4 GB, OK)
+      physicaldrive 2:1   (port 2:id 1 , Parallel SCSI, 36.4 GB, OK)
+
+   array B (Parallel SCSI, Unused Space: 0 MB)
+
+      logicaldrive 2 (136.7 GB, RAID 1+0, OK)
+
+      physicaldrive 2:2   (port 2:id 2 , Parallel SCSI, 146.8 GB, OK)
+      physicaldrive 2:3   (port 2:id 3 , Parallel SCSI, 146.8 GB, OK)
+
+
+Controller policies (write cache, disk cache, battery), only interesting lines kept:
+
+root@server:~# hpacucli ctrl slot=0 show 
+
+Smart Array P420i in Slot 0 (Embedded)
+   Serial Number: *SERIAL*
+   Controller Status: OK
+   Firmware Version: 3.54
+   Cache Board Present: True
+   Cache Status: OK
+   Cache Ratio: 25% Read / 75% Write
+   Drive Write Cache: Disabled
+   Total Cache Size: 512 MB
+   No-Battery Write Cache: Disabled
+   Cache Backup Power Source: Capacitors
+   Battery/Capacitor Count: 1
+   Battery/Capacitor Status: OK
+Cache is ok, Battery is too. Write cache disabled if battery back isn't enabled, that's ok.
+
+Check and enable cache for all arrays:
+
+Check current state:
+
+root@server:~# hpacucli ctrl slot=0 ld all show detail
+
+Smart Array P420i in Slot 0 (Embedded)
+
+   array A
+
+      Logical Drive: 1
+         Size: 136.7 GB
+         Fault Tolerance: RAID 1
+         Status: OK
+         Caching:  Disabled
+
+Enable caching:
+
+root@server:~# hpacucli ctrl slot=0 ld all modify arrayaccelerator=enable
+Enable disks' write cache:
+
+root@server:~# hpacucli ctrl slot=0 modify dwc=enable
+
+Warning: Without the proper safety precautions, use of write cache on physical 
+         drives could cause data loss in the event of power failure.  To ensure
+         data is properly protected, use redundant power supplies and
+         Uninterruptible Power Supplies. Also, if you have multiple storage
+         enclosures, all data should be mirrored across them. Use of this
+         feature is not recommended unless these precautions are followed.
+         Continue? (y/n) y
+Warning is self-explaining I guess. Disks's cache aren't protected by controller's battery. It's up to you but I wouldn't enable such features if your power supply isn't protected.
+
+Modify cache ratio between read and write:
+
+root@server:~# hpacucli ctrl slot=0 modify cacheratio=50/50
