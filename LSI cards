@@ -1,0 +1,49 @@
+Vendor information
+LSI (​http://www.lsi.com/) is probably the most used hardware raid manufacturer.
+Many LSI cards are rebranded by OEM. In example, nearly all current Dell servers have LSI cards re-branded as Dell PERC.
+
+
+Tones of different cards
+LSI sells several model of cards which do not use the same drivers nor the same tools.
+
+Here are what we know yet:
+
+LSI FusionMPT: Theses are the cheap cards usually found in two-drive-bays-only servers.
+It only supports RAID0 and RAID1.
+
+See: LSIFusionMPT for information about theses cards.
+LSI FusionMPT SAS2: This is the new version of the FusionMTP cards.
+Dell PERCH H200/H700 are based on MPT SAS2 for example.
+
+See: LSIFusionMPTSAS2 for information about theses cards.
+LSI MegaRAID: Theses are the old high-end cards from LSI.
+Thoses are fully hardware RAIDs controllers supporting RAID5, at least, with various SCSI interfaces.
+Deprecated, but still found in many old servers.
+
+See: LSIMegaRAID for informations about theses cards.
+LSI MegaRAID SAS: This is current high-end serie by LSI.
+It uses SAS or SATA connectors and can be found in many OEMs servers like Dell's.
+
+See: LSIMegaRAIDSAS for informations about theses cards.
+LSI MegaRAID SAS (megasr crap): This is the first of the broken cards series by LSI. I hope you don't have one.
+In fact this card has FusionMPT hardware plus MegaRAID BIOS. RAID5 is supported through a proprietary kernel module.
+
+Both FusionMPT and this fake MegaRAID looks like this in lspci:
+0d:05.0 SCSI storage controller: LSI Logic / Symbios Logic SAS1068 PCI-X Fusion-MPT SAS (rev 01)
+
+But if you run lspci -nn you will notice this:
+Real FusionMPT: 02:08.0 SCSI storage controller [0100]: LSI Logic / Symbios Logic SAS1068 PCI-X Fusion-MPT SAS ![1000:0054] (rev 01)
+Fake MegaRAID : 0d:05.0 SCSI storage controller [0100]: LSI Logic / Symbios Logic SAS1068 PCI-X Fusion-MPT SAS ![1000:0055] (rev 01)
+1000:0054 is okay, 1000:0055 is a fake MegaRAID card.
+
+Some users reported a switch available on the motherboard to disable software RAID5 and use the card as a regular FusionMPT card. However I can't find it on a Nec 120Rg-1 so I had to deal with that crap.
+
+See: LSIMegaSR? for informations about this card.
+LSI MegaIDE: Another crap by LSI. This controller is fully software.
+It relies on regular SATA controller (Intel ICH7) and does software RAID using a proprietary kernel module.
+All what's really hardware on this card is the BIOS that let you define some array.
+This card doesn't even appear in lspci.
+
+I found this card in on a Nec SI1110R-1.
+
+See: LSIMegaIDE? for informations about this card.
