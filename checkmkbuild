@@ -1,0 +1,278 @@
+The Basics of the Check_MK Monitoring System
+Description of the system
+The Check_MK is an open source based monitoring system. It fits almost any infrastructure. Basic element the Nagios and WATO GUI, and includes various modules: the NagVis, which is responsible for displaying the network topology, a PNP4Nagios, which collects the monitored system performance data in RRD format and displays them in the form of graphs and reports. It includes a DokuWiki system, which can be a great knowledge base. The monitoring system is able to monitor the resources and services of systems on the client side agent, API or SNMP.
+
+The main function of a monitoring system is the status checking, the dashboard-based visualization, and change-based notification.
+
+Features of the Check_MK:
+
+Extensive, deep and customizable monitoring with agent, API or SNMP;
+it ensures the integrity and confidentiality;
+able to synchronize with an NTP server;
+monitoring relatively easily managed through a Web Administration Tool (WATO);
+the monitored performance data is stored in a standard RRD format. and the ability to prepare reports;
+there’s dashboard, which provides a summary presentation of the state;
+the ability to display the logical network topology;
+it combines a physically separate, but logically related service;
+if a Syslog event occurs, then automatically responds with an action, and it can be controlled from the command line;
+capable of real-time alarms with e-mail or SMS server;
+easy backup and restore;
+role-based user management, LDAP-based user authentication (including Active Directory and eDirectory), and local user authentication;
+not affect the monitoring system and the monitored systems operation;
+able to read the Nagios plugins to facilitate the eventual migration.
+Resource requirements
+
+Resource Requirements Based on the experience:
+
+One site, dozen hosts with Check_MK agent, and some hosts with SNMP: 1 CPU core, 1 GB RAM, min. 8-16 GB HDD (e.g. mini PC).
+
+One site, more dozen hosts with Check_MK agent, and dozen hosts with SNMP: 2 CPU core, 2 GB RAM, min. 40 GB HDD.
+
+One site, more than one hundred hosts with Check_MK agent, including more dozen host with log monitoring and vulnerability scan, dozen hosts with SNMP, and Event Console: 4 CPU core, 4 GB RAM, min. 80 GB HDD.
+
+One or more site, more than one hundred hosts with Check_MK agent, including log monitoring and vulnerability scan, more dozen hosts with SNMP, and Event Console: 6-8 CPU core, 4–8 GB RAM, min. 120 GB HDD.
+
+One or more site, more hundred hosts with Check_MK agent, including log monitoring and vulnerability scan, more hundred hosts with SNMP, Event Console: min. 8 CPU core, min. 8 GB RAM, min. 200 GB HDD.
+
+The manufacturer’s recommendations: http://mathias-kettner.com/check_mk_monitoring_appliance.html
+
+Configuring of the system
+Creating and configure User
+Countless users can create, which can be divided into groups, and which assign different roles.
+
+– WATO → Users:
+
+– Create new user: New User
+
+– Modify user: Properties
+
+– Identify:
+
+– Username: User ID
+
+– Full name: User full name
+
+– Email address: Email address
+
+– Pager address: Mobil phone number
+
+– Security:
+
+– Authentication: Repeating enter the password!
+
+– Roles: Type of user
+
+– Contact Groups: Select Everybody, or other Contact Groups!
+
+– Personal settings → Disable Notifications: If you do not wish to receive messages, then to select! (Global and local method to apply settings to users.)
+
+– Save
+
+– X Changes → Activate Changes!
+
+Setting LDAP user authentication
+ 
+
+The system supports the LDAP-based user authentication (including Active Directory and eDirectory).
+
+1. Enable LDAP authentication:
+
+– WATO → Global Settings → User Management → Enable User Connectors:
+
+– LDAP (Active Directory, OpenLDAP): Select!
+
+2. Configure LDAP authentication:
+
+– WATO → Users → LDAP Settings:
+
+– Enter the data of the LDAP server communication!
+
+– Eg. with eDirectory
+
+– LDAP Connection Settings
+
+– LDAP Server: IP address of LDAP-server
+
+– TCP Port: 389 or 636
+
+– Use SSL: Select, if SSL connect!
+
+– Directory Type: Active Directory, OpenLDAP or 389 Directory Server (e.g. eDirectory)
+
+– Bind Credentials: Select!
+
+– Bind DN: Name of LDAP transfer user
+
+– Bind Password: Password of LDAP transfer user
+
+– LDAP User Settings
+
+– User Base DN: ou=<organization_unit>,o=<organization>
+
+– Search Filter: (|(sAMAccountName=<user1>)(sAMAccountName=user2)(sAMAccountName=user3))
+
+– LDAP Group Settings
+
+– Group Base DN: ou=<organization_unit>,o=<organization>
+
+– Alias: Select!
+
+– Authentication Expiration: Select!
+
+– LDAP attribute to be used as indicator: Active Directory: „accountExpires”, eDirectory: „passwordExpirationTime”
+
+– Email address: Select!
+
+– Save & Test
+
+– X Changes → Activate Changes!
+
+Thereafter appear the filtered LDAP users.
+
+ 
+
+3. Authentication test:
+
+http(s)://<IP-address_of_Check_MK_server>/<name_of_site> (LDAP username and password)
+
+Agents install and configure on the hosts
+The agents communicate full functionality with the server by default Xinetd or Inetd service manager (in Unix-, Linux- and BSD-based systems), or service manager (in Windows systems) but can be set using SSH channel. The Check_MK server monitoring agent you need to install the server host, and configure! The used port of agent: TCP 6556.
+
+Agent install and configure on Unix-like systems
+Download and extract of the Agent
+
+wget http://mathias-kettner.de/download/check_mk-*.tar.gz
+tar xzfv check_mk-*.tar.gz
+cd check_mk-*
+tar xzfv agents.tar.gz
+Install Agent
+
+Debian-like systems:
+dpkg -i check-mk-agent_*.deb
+RedHat-like and SUSE systems:
+rpm -i check-mk-agent-*.rpm
+Other Unix-like systems:
+cp check_mk_agent.linux /usr/bin/check_mk_agent
+A different systems it should be named .aix, .netbsd, .hpux etc (instead .linux)!
+Configure Agent with Xinetd
+
+1. Install Xinetd:
+Debian-like systems:
+apt-get install xinetd
+RedHat-like systems:
+yum install xinetd
+chkconfig xinetd on
+SUSE systems:
+zypper install xinetd
+2. Configure Xinetd service file of Check_MK:
+touch /etc/xinetd.d/check_mk
+vi /etc/xinetd.d/check_mk
+   service check_mk
+   {
+	 type		  = UNLISTED
+	 port		  = 6556
+	 socket_type  = stream
+	 protocol	  = tcp
+	 wait		  = no
+	 user		  = root
+	 server	  = /usr/bin/check_mk_agent
+	 # configure the IP address(es) of your Nagios server here:
+	 # only_from  = 127.0.0.1 10.0.20.1 10.0.20.2
+	 disable	  = no
+   }
+The only_from line is IP-addresses of monitoring servers. 
+3. Restart Xinetd:
+service xinetd restart
+Or
+/etc/init.d/xinetd restart
+Or
+/etc/rc.d/xinetd restart
+Configure agent with Inetd (in FreeBSD and HPUX systems)
+
+1. Configure service file:
+vi /etc/services
+   check_mk 6556/tcp #check_mk agent
+2. Configure Inetd:
+FreeBSD system:
+vi /etc/rc.conf
+   inetd_enable=yes
+inetd_flags=-wW
+vi /etc/inetd.conf
+   check_mk stream tcp nowait root /usr/local/nagios/check_mk_agent check_mk_agent
+HP-UX system:
+vi /etc/inetd.conf
+   check_mk stream tcp6 nowait root /usr/local/nagios/check_mk_agent check_mk_agent
+3. Restrict access to Check_MK:
+FreeBSD system:
+vi /etc/hosts.allow
+   check_mk_agent : <IP-address_of_Check_MK_servers> : allow
+HP-UX system:
+vi /var/adm/inetd.sec
+   check_mk allow <IP-address_of_Check_MK_servers>
+4. Restart Inetd:
+FreeBSD system:
+/etc/rc.d/inetd restart
+HP-UX system:
+inetd -c
+Agent install and configure on Windows systems
+1. Download the agent:
+
+Copy the agent in the /omd/sites/<name_of_site>/share/check_mk/agents/windows directory of the OMD server!
+
+2. Install the check_mk-*windowsinstall_agent.exe (or check_mk_agent.msi) to C:Program Files (x86)check_mk directory!
+
+3. Rename the C:Program Files (x86)check_mkcheck_mk.example to check_mk.ini!
+
+4. Configure IP-addresses of the Check_MK server(s):
+
+notepad C:”Program Files (x86)”check_mkcheck_mk.ini
+only_from = <IP-addresses_of_Check_MK_server(s), or IP-range>
+5. Restart Check_MK_Agent service:
+
+net stop Check_MK_Agent & net start Check_MK_Agent
+Refine of the Windows Agent output
+
+If you want to refine the output of agent (e.g. winperf read or some error), then to be listed the enabled sections or services in the C:”Program Files (x86)”check_mkcheck_mk.ini file (e.g. sections = check_mk mrpe plugins services mem systemtime uptime df). If the server Check_MK specified service does not allow for the section parameter, then the agent Check_MK_Agent startup error in diagnosis section lists the missed parameters.
+
+Configure host
+After installing on the host, you must recognize and configure them in the monitoring Server!
+
+– WATO → Hosts: – New host: Vagy – To select the host! → Properties: – General Properties → Hostname: Enter the name of host! – Basic Settings: – Permissions: Enter the groups! – Alias: Enter the alias! – IP address: Enter the IP-address of the host (e.g. localhost: 127.0.0.1) – Parents: Enter the parents in the network topology! – Host Tags → Agent type: Check_MK Agent, SNMP, Legacy SNMP device or Dual – Save & go to Services – To select the needed services! – Save manual check configuration – X Changes → Activate Changes! – Views → Hosts → All hosts → To select the host!
+Configure service
+After installing on the host, you must configure the services in the monitoring Server!
+
+– WATO → Hosts & Service Parameters (or Manual Checks): E.g. Filesystems (used space and growth): – Parameters for discovered services → To select the service! → Create rule in folder (or Create ... specific rule for): – Explicit hosts: Select, and enter names of hosts! – Levels for filesystem: Select, and enter the thresholds! – Save E.g. Process Discovery (check of runner process): – Parameters for discovered services → To select the service! → Create rule in folder (or Create ... specific rule for): – Explicit hosts: Select, and enter names of hosts! – Process Name: Enter the process name! – Process Matching → Exact name of the process without arguments: Enter the process without arguments! – Save E.g. Check connecting to a TCP port: – Active checks (HTTP, TCP, etc.) → To select the service! → Create rule in folder (or Create ... specific rule for): – Explicit hosts: Select, and enter names of hosts! – TCP Port: Number of the TCP port – Use SSL for the connection: To select (with SSL communication)! – Save E.g. Windows Service Discovery: – Parameters for discovered services → To select the service! → Create rule in folder (or Create ... specific rule for): – Explicit hosts: Select, and enter names of hosts! – Services (Regular Expressions): Select, and enter names of services! – Save – X Changes → Activate Changes! – WATO → Configuration → Hosts → To select the host! → Edit the services of this host, do a service discovery: – Select the service! – Save manual check configuration – X Changes → Activate Changes!
+Parameterization of service
+The monitoring can be parameterized for each rule.
+
+– WATO → Hosts → To select a host, which includes the service! → Edit the services of this host, do a service discovery → To select a type of service! → Edit and analyze the check parameters of this service: - Create rule in folder: Create new rule for all host and explicit value Or – Create ... specific rule for: Create new rule for actual host and explicit value Or - To select a rule! → Edit this rule: Edit of an existing rule - Conditions: Enter hosts and the services! - Parameters: Enter parameters! E.g. df: – Levels for filesystem: Select! – Levels for filesystem used space: Enter thresholds! – Save – X Changes → Activate Changes!
+Modification of parameterized service
+The rules can be changed later.
+
+– WATO → Host & Service Parameters → Used Rulesets → To select the service! → Edit this rule
+
+Create host tags
+The host tags will help new properties are added to the host.
+
+– WATO → Host Tags → New Tag Groups: – Internal ID: ID of tag group – Title: Appearing tilte of tag group – Topic → Create New Topic: Name of new topic – Choices: – Add tag choice: – Tag ID: ID of tag – Description: Appearing description of tag – Save – X Changes → Activate Changes!
+Configure host group
+The hosts can be grouped (e.g. by type of OS, functions or location).
+ – WATO → Host & Service Groups → Host groups (if in Service groups) → (1.2.4 or early systems: Host Groups): – New host group: Or – Select to the group! → Properties: – Name: Name of group – Alias: Alias of group – Save – X Changes → Activate Changes!
+– WATO → Host & Service Parameters → Grouping → Assignment of hosts to host groups: – Create rule in folder: Or – To select a rule! → Edit this rule: – Explicit hosts: Select, and enter names of hosts! – Assignment of hosts to host groups: Select to the host groups! – Save – X Changes → Activate Changes!
+ The created host groups are in the View → Host Groups menu. It is recommended to create a host group with all the elements, so you can view all devices in the Network Topology.
+Configure service group
+The services can be grouped (e.g. by type, functions or services).
+ – WATO → Host & Service Groups → Service groups (if in Host groups) → (1.2.4 or early systems: Service Groups): – New service group: Or – Select to the group! → Properties: – Name: Name of group – Alias: Alias of group – Save – X Changes → Activate Changes!
+– WATO → Host & Service Parameters → Grouping → Assignment of services to service groups: – Create rule in folder: Or – To select a rule! → Edit this rule: – Explicit hosts: Select, and enter names of hosts! – Services: Select, and enter names of services! – Assignment of services to service groups: Select to the service groups! – Save – X Changes → Activate Changes!
+ The created service groups are in the View → Service Groups menu.
+Configure cluster hosts and services
+The clusters can be monitored.
+ 1. Define the clustered services:
+ – WATO → Host & Service Parameters → Monitoring Configuration → Inventory and Check_MK settings → Clustered services: – Select to the cluster service! → Edit: Or – Create rule in folder: – Explicit hosts: Select, and enter cluster nodes! – Services: Select, and enter services! – Positive / Negative: – Make the outcome of the ruleset positive: The rule is OK, if either service is OK – Make the outcome of the ruleset negative: The rule is OK, if all services is OK – Save – X Changes → Activate Changes!
+ 2. Define the clustered hosts:
+ – WATO → Host: – Select to the cluster! → Edit: Or – New cluster: – Hostname: Name of cluster – Alias: Alias of cluster – Nodes: Enter cluster nodes! – IP address: If there is no cluster IP address, you can leave it blank, if any, enter! – Host tags → Agent type: Select to the type of agent! – Save & go to Services → To select the needed services! – Save manual check configuration – X Changes → Activate Changes!
+ The created clusters are in the View → Hosts menu.
+Disabling check of the not used discovered services
+It is recommended to disable the check of automatically discovered, but disabled services, so as not to send notification.
+ – WATO → Global Settings → Service discovery: – Enable regular service discovery checks: Deselect! – Severity of failed service discovery check: – Current setting: OK – do not alert, just display – Save – X Changes → Activate Changes!
+ Thereafter not alert.
