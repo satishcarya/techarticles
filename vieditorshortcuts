@@ -1,0 +1,59 @@
+VI Shortcuts & Commands For Newbies
+
+This is a collection of some of the basic VI commands and shortcuts for newbies. You’ll find yourself needing this if you are coding or scripting inside of the unix/linux command line using VI.
+
+Command Mode: Accepts commands, which are usually in the form of individual letters. Example, a and i.
+You can use h, j, k and I to navigate in similar ways as the up and down arrow. Not needed if you have an up and down arrow on your keyboard.
+Yank – Term used to copy files. Use YY to yank text. Navigate to the line you wish to yank and type yy make sure you are in command mode.
+2yy will yank 2 lines, 4yy will yank 4 lines. Precede the YY command with the number of lines you would like to yank.
+
+
+a – append text after cursor
+A – append text to end of current line
+p – Command will paste the yanked line(s) contents starting on the line after your cursor.
+P – Upper case P will paste the yanked line(s) starting on the line before our cursor
+G – Takes you to specified line
+H – Takes the cursor to the top of the page
+L – Takes the cursor to the bottom of the page
+o – inserts a new line below the line your cursor is on and inserts into insert mode for typing.
+u – undo any change, must be in command mode and only goes back one change.
+w – Move over one word at a time
+Shift + G– Takes you to the bottom of the page
+
+Page up and down in VI
+Shift + f Page down (forward)
+Shift + b page up (backward)
+
+note* The keyboard page and and page down keys work the same
+
+Change text – cc-allows you to change the entire line (basically removes the line and inserts into insert mode) cw to replace just one word on the line the current word your mouse is over.
+Search – search forward type / and ? searches backwards; both followed immediately by the term to search for.
+
+:%s/foo/bar will replace the first occurrence of foo with bar, operating on every line in the buffer.
+:%s/foo/bar/g will replace every occurrence of foo with bar, operating on every line in the buffer.
+
+:s/foo/bar will replace the first occurrence of foo with bar, operating on the current line.
+:s/foo/bar/g will replace every occurrence of foo with bar, operating on the current line.
+
+Also very helpful is the /c flag – it will allow you to confirm each replacement match, depending on the above criteria for searching.
+
+n – moves to next occurrence of search string
+N – move to next occurrence of search string in opposite direction
+
+Ex mode: Enter ex mode from command mode with “:”. Use this to save or manipulate files. This mode is also referred to as colon commands
+
+Replace text – :%s/fine/ one – this replaces all occurs of “fine” with “one”
+% represents “global changes to all occurrences” replace to a line number, ending line number of comma.
+:= – returns number of current line
+:w filename – writes contents of file to a new filename.
+Insert Mode: Enables you to insert and edit text. The Esc key exits insert mode and returns you back to command mode.
+R – enters the insert mode to replace text not insert text. It will replace text until it hits a space. After a space you must start typing over the text for it to apply or it will just push text down.
+i – used to insert text and not replace it. Pushes existing text down.
+ZZ– Save and quit in 2 key strokes instead of wq!
+
+:w – Saves changes without quitting
+:wq – Saves changes and quits
+:q! – Quits without saving changes.
+:e /file.txt will load the new file.txt into the vi editor for editing. This will only occur if the current changes to the current file being edited are saved.
+:r allows you to bring contents of an old file into a new one.
+:! Allows you to run shell commands from within vi. Such as :!mkdir test
