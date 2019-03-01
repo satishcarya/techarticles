@@ -1,0 +1,76 @@
+yum guide
+
+How to Download and Install Yum Packages Locally
+On CentOS, we sometimes need to install yum packages as RPMs locally because we may need them at a time when we don’t have internet access.
+
+How to Download Yum Packages Locally
+Option #1
+I like to use yum-downloadonly to download packages locally.
+
+yum install yum-plugin-downloadonly
+Make a directory where you will download the RPMs.
+
+mkdir /nfs
+Now, we use –downloadonly to download all the RPMs of the package and its dependencies into the /nfs directory.
+
+yum install git -y --downloadonly --downloaddir=/nfs
+ls /nfs
+git-1.7.1-4.el6_7.1.x86_64.rpm
+If you think that you have already installed the files, you should use reinstall:
+
+yum reinstall git -y --downloadonly --downloaddir=/nfs
+Option #2
+A second option is to use yumdownloader. I prefer Option #1 though.
+
+yum install yum-utils
+yumdownloader git
+How to Install Yum Downloaded Packages Locally
+Change directory to where all the .rpm’s are stored. Yum downloader downloads the packages and dependencies as .rpm’s.
+
+cd /nfs
+Install all the RPM packages locally:
+
+yum --nogpgcheck localinstall *.rpm
+
+Using yum to download packages without installing them
+BY SHUSAIN · PUBLISHED SEPTEMBER 28, 2017 · UPDATED MARCH 12, 2018
+
+In this tutorial, we are going to discuss about how we can use yum to download packages without actually installing it on our server. I recently discovered this option & thought that I share with all of you guys. But before we actually discuss the option let’s talk in brief about yum.
+
+Yum aka Yellowdog Updater Modified, is the default packet manger for RHEL\CentOS. It has a number of options that can be used to with it to fetch information, install or uninstall the packages. We have discussed quite a few options in our article WORKING WITH YUM (with examples) , so please read it to get to know yum in a detail.
+
+Now let’s start with the main part of the tutorial i.e. how we can yum to download packages without installing/updating it on our server. There are two methods to do this,
+
+1- Using ‘yumdownloader’
+
+2- Using ‘downloadonly’ plugin
+
+Process for both is different, so let’s start with it.
+
+ 
+
+1- Using ‘yumdownloader’
+If we need to download an installed package, than we first need to install ‘yumdownloader’ on our system. Yumdownloader is part of ‘yum-utils’ package,
+
+$ sudo yum install yum-utils
+
+After the package has been installed, we can now use yumdownloader to download the required package,
+
+$ sudo yumdownloader httpd
+
+The downloaded package will be available in the same directory that the command was executed.
+
+ 
+
+2- Using ‘downloadonly’ plugin with yum
+To use ‘downloadonly’ plugin with yum, we will firstly install the plugin using yum,
+
+$ sudo yum install yum-downloadonly
+
+Now after installing the plugin, execute the following command to download the required package,
+
+$ sudo yum install –downloadonly –downloaddir=/root/Desktop httpd
+
+We can change the location of download directory to something else as well but if we will not provide the ‘downloaddir’ option , then downloaded files will be sent to ‘/var/cache/yum/ in rhel-{arch}-channel/packages’ directory. Also we can download multiple packges in single command.
+
+To download a specified version of the package, mention the full package name like ‘httpd-2.2.15-60.el6.centos.5.x86_64.rpm’.
