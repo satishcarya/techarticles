@@ -1,0 +1,32 @@
+5 Commands to Get Public IP using Linux Terminal
+
+https://tecadmin.net/5-commands-to-get-public-ip-using-linux-terminal/
+
+5 Commands to Get Public IP using Linux Terminal
+Written by Rahul, Updated on June 27, 2018
+ Linux Commands ip, public ip 
+Public IP is used for communication between computers over the Internet. A computer running with public IP is accessible all over the world using the Internet. So we can say that it is the identity of the computer on the internet. Now the question is how do we know our public IP?. For computers having GUI can easily get there IP using web tools like this but how to get public IP of the computers having terminal access only. The solution is here – use one of the following commands to find public IP of your system using Linux terminal. These are also useful to use in a shell script.
+
+How to Check Local IP Address on Linux
+Find Public IP using Linux Command
+Command 1 –
+Use dig command to find your public IP address. The dig command is a DNS lookup utility for Linux systems to look up your public IP address by connecting to the OpenDNS servers.
+
+dig +short myip.opendns.com @resolver1.opendns.com
+Command 2 –
+Use wget command to get your Public IP address as below example.
+
+wget http://ipecho.net/plain -O - -q ; echo
+Command 3,4,5 –
+Use curl command to get your Public address.
+
+curl ipecho.net/plain; echo
+curl icanhazip.com
+curl ifconfig.me
+Get Public IP in Shell Script
+We can simply use following commands in our shell script get our computers public IP and store them in a variable to use anywhere in a shell script.
+
+#!/bin/bash
+
+PUBLIC_IP=`wget http://ipecho.net/plain -O - -q ; echo`
+echo $PUBLIC_IP
