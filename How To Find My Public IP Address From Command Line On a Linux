@@ -1,0 +1,45 @@
+How To Find My Public IP Address From Command Line On a Linux
+Explain IP addresses
+
+An IP is short for Internet Protocol. It is used to identify computers or mobile devices on the Internet. Each device connected to the Internet has an IP address. IP address can be used to personalize information.
+
+Use dig command for determining my public IP address:
+
+Open the Terminal application.
+Type the following dig (domain information groper) command on a Linux, OS X, or Unix-like operating systems to see your own public IP address assigned by the ISP:
+dig +short myip.opendns.com @resolver1.opendns.com
+Or dig TXT +short o-o.myaddr.l.google.com @ns1.google.com
+You should see your IP address on screen. This is the fastest way to find out your IP address without using 3rd party site.
+
+ou can try host command to see the same information:
+host myip.opendns.com resolver1.opendns.com
+
+You can also use the Google server to get the same info using dig command:
+dig TXT +short o-o.myaddr.l.google.com @ns1.google.com | awk -F'"' '{ print $2}'
+How do I store my IP address in a shell variable?
+
+The syntax is:
+
+myip="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+echo "My WAN/Public IP address: ${myip}"
+Sample outputs:
+
+My WAN/Public IP address: 74.86.144.194
+Finding Public/WAN IP address on a router
+
+A few ADSL/Cable router allows you to login to your router using telnet or ssh:
+
+telnet your-router-ip-here
+ssh user@your-router-ip-here
+telnet 192.168.0.254
+ssh admin@192.168.1.254
+[admin@dd-wrt ~]#  ifconfig eth1 | grep 'inet addr:' 
+[admin@dd-wrt ~]#  ip addr show nas01
+Use 3rd party web-sites to get your IP
+
+Please note that I do not recommend following curl/wget method due to security reasons. You have been warned:
+
+curl ifconfig.me
+curl icanhazip.com
+curl ipecho.net/plain
+curl ifconfig.co
