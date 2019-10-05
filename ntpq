@@ -1,0 +1,33 @@
+22.13. CHECKING THE STATUS OF NTP
+To check if ntpd is configured to run at system start, issue the following command:
+~]$ chkconfig --list ntpd
+ntpd           	0:off	1:off	2:on	3:on	4:on	5:on	6:off
+By default, when ntpd is installed, it is configured to start at every system start.
+To check if ntpd is running, issue the following command:
+~]$ ntpq -p
+     remote           refid      st t when poll reach   delay   offset  jitter
+==============================================================================
++clock.util.phx2 .CDMA.           1 u  111  128  377  175.495    3.076   2.250
+*clock02.util.ph .CDMA.           1 u   69  128  377  175.357    7.641   3.671
+ ms21.snowflakeh .STEP.          16 u    - 1024    0    0.000    0.000   0.000
+ rs11.lvs.iif.hu .STEP.          16 u    - 1024    0    0.000    0.000   0.000
+ 2001:470:28:bde .STEP.          16 u    - 1024    0    0.000    0.000   0.000
+The command lists connected time servers and displays information indicating when they were last polled and the stability of the replies. The column headings are as follows:
+remote and refid: remote NTP server, and its NTP server
+st: stratum of server
+t: type of server (local, unicast, multicast, or broadcast)
+poll: how frequently to query server (in seconds)
+when: how long since last poll (in seconds)
+reach: octal bitmask of success or failure of last 8 queries (left-shifted); 377 = 11111111 = all recent queries were successful; 257 = 10101111 = 4 most recent were successful, 5 and 7 failed
+delay: network round trip time (in milliseconds)
+offset: difference between local clock and remote clock (in milliseconds)
+jitter: difference of successive time values from server (high jitter could be due to an unstable clock or, more likely, poor network performance)
+To obtain a brief status report from ntpd, issue the following command:
+~]$ ntpstat
+unsynchronised
+  time server re-starting
+   polling server every 64 s
+~]$ ntpstat
+synchronised to NTP server (10.5.26.10) at stratum 2
+   time correct to within 52 ms
+   polling server every 1024 s
