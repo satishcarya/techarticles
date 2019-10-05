@@ -1,0 +1,5 @@
+Fixing checkmk duplicate entry alerts 
+become checmk on the checkmk server
+cmk -II servername
+the  rerun the cmk -O command to reinitialise to get the checmk config reloaded.
+if the server which is having duplicate entry is not listed the reload worked.
