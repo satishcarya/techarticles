@@ -1,0 +1,34 @@
+How to sort lines of text from within vim (super easy!)
+
+Sorting text in Vim is easy!
+
+Select the text, then press :, type sort, then hit enter!
+
+It'll sort the whole document by default, but you can enter a range too.
+
+Explanation on how to sort text in vim:
+Press v and then select the text you want. If you want to select the whole document then press ggvG (gg = to top of document, v = enter select mode, G = go to bottom of document), then press :, which will let you enter a command. It should have already filled out some characters (so you have :'<,'> in the command line area), so just type sort after it.
+
+This example shows selecting the whole document to make the tutorial simple to follow. In reality if you want to sort the whole document you can just do :sort
+
+Gif video on sorting in vim:
+sort text in vim gif video
+
+The keys pressed:
+gg (to top of document) v (enter visual / select mode) G (select to bottom of document) : (bring up command line) sort (and then hit enter!)
+
+Of course you can select whatever text you want, you can press v then use h/j/k/l (or arrow keys) to select the lines you want selected.
+
+You can also do something like :'a,.sort to sort the lines from marker a, to current line.
+
+Vim sort variations and options...
+How to sort in reverse
+Use :%sort! instead of :sort.
+
+How to remove duplicate lines in Vim
+:%sort u
+
+How to do numeric sort
+If you use the standard sorting, then sorting 50, 200, 1000 will mean they are not in the correct order! If you want 1000 to be last then you need to do a numeric sort:
+
+:sort n
