@@ -1,0 +1,4 @@
+find / -xdev -type f -size +100M
+find / -xdev -type f -size +100M -exec ls -la {} \; | sort -nk 5
+du -ahx / | grep -E '\d+G\s+'
+find / -xdev -type f -size +100M -exec du -sh {} ';' | sort -rh | head -n50
