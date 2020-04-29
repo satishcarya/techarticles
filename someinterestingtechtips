@@ -1,0 +1,101 @@
+Intersting tech tips
+Some Linux commands for Increasing Productivity
+
+In this article, we have listed out the commands that you could use in a Linux for increasing your productivity.
+
+Find and kill and process
+
+Let’s say you want to find a process id and kill it. You can do this using the following command.
+
+# ps -aef | grep <service name> | grep -v grep | awk ‘{print $2}’ | xargs kill -9
+
+Find maximum space using files
+
+Sometimes in production our filesystem get full or about to. This is due to some unwanted file get full frequently. To find those files
+
+# find / -xdev -size +94371840c -exec du -h {} \;
+
+or
+
+# find / -xdev -size +50000 -exec ls -s {} \; |sort -n
+
+List out all process and Listening ports
+
+Use the following command to list all the listing ports.
+
+# netstat –nulpn
+
+Delete the last Word and Line
+
+When you are typing,
+
+    If you want to delete the last word, use “Ctrl + W”
+    If you want to delete the whole line, use “Ctrl + U”
+    If you want to enter next line, use “Ctrl + C”
+
+Search Previously Executed Command
+
+You can search for a previously executed command using the reverse search functionality.Use “Ctrl + R” button and type the keyword to search. It will return the matching command executed before.
+
+Process related
+
+    Use pgrep to get the process id of a service.
+
+# pgrep <service name>
+
+And you can use xargs to kill all the related processes.
+
+# pgrep <service name> | xargs kill -9
+
+    User nohup and & to send a process to the background and run forever.
+
+# nohup <some Service/process script> &
+
+Output as file Input
+
+You can use the output of a command as a file to be the input of another command using “<” symbol.
+
+For example, if you want to compare the /etc/hosts of a remote host with your current host, you can do the following.
+
+# diff /etc/hosts <(ssh user@<IP> -i ~/.ssh/key-file cat /etc/hosts)
+
+Suppress the standard output
+
+If you want to suppress the standard output, you can redirect the stdout to /dev/null
+
+For example,
+
+# ls -l > /dev/null
+
+File Permissions in Octal form
+
+To view the file permissions in octal form, you can use the following syntax.
+
+# stat -c ‘%A %a %n’ <file name>
+
+disk/CPU/network status
+
+To know disk/CPU/network status you could use the following command line utilities.
+
+# iostat
+
+# netstat
+
+# top
+
+# vmstat
+
+Other useful Tips
+
+    Use Ctrl + Z to suspend a process
+    Use grep for filtering outputs
+    Use !! to execute the last command
+    Use dmesgcommand to identify hardware or driver problems
+    Use the mtrcommand to troubleshoot network issues.
+
+For example,
+
+mtr 8.8.8.8
+
+    To empty a file use >followed by the filename. For example >example.txt
+    Use pstree command to view the process tree of your system.
