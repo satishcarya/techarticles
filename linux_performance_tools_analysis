@@ -1,0 +1,235 @@
+Linux server performance Monitoring Tools
+Linux server performance Monitoring Tools
+By motoskia - March 7, 201702233
+Share on Facebook Tweet on Twitter  
+Linux server performance Monitoring Tools
+As Linux admin, we face linux performance issue sometimes and it’s varying based on the issue. In market there are lot free and paid monitoring tools available. Here we discuss some free, standard and default monitoring tools in linux box. These tools provide metrics which can be used to get information about system activities. You can use these tools to find the possible causes of a performance problem. This commend help us to analysis and debug issues such as,
+
+Disk (storage) bottlenecks.
+CPU and memory bottlenecks.
+Network bottlenecks.
+Top – Process Activity Command
+The top program provides a dynamic real-time view of a running system. It can display system summary information as well as a list of processes or threads currently being managed by the Linux kernel. The types of system summary information shown and the types, order and size of information displayed for processes are all user configurable and that configuration can be made persistent across restarts.
+
+The program provides a limited interactive interface for process manipulation as well as a much more extensive interface for personal configuration — encompassing every aspect of its operation. And while top is referred to throughout this document, you are free to name the program anything you wish. That new name, possibly an alias, will then be reflected on top’s display and used when reading and writing a configuration file.
+
+Hot Keys:
+Hot Key	Usage
+t	Displays summary information off and on.
+m	Displays memory information off and on.
+A	Sorts the display by top consumers of various system resources. Useful for quick identification of performance-hungry tasks on a system.
+f	Enters an interactive configuration screen for top. Helpful for setting up top for a specific task.
+o	Enables you to interactively select the ordering within top.
+r	Issues renice command.
+k	Issues kill command.
+z	Turn on or off color/mono
+w – Find out Who Is Logged on And What They Are Doing
+W displays information about the users currently on the machine, and their processes. The header shows, in this order, the current time, how long the system has been running, how many users are currently logged on, and the system load averages for the past 1, 5, and 15 minutes.
+
+The following entries are displayed for each user: login name, the TTY name, the remote host, login time, idle time, JCPU, PCPU, and the command line of their current process.
+
+The JCPU time is the time used by all processes attached to the TTY. It does not include past background jobs, but does include currently running back ground jobs.
+
+The PCPU time is the time used by the current process, named in the “what” field.
+
+# w
+
+10:47:14 up 26 min, 1 user, load average: 0.00, 0.01, 0.05
+
+USER     TTY     FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+
+Foxtech pts/0   10.1.32.19   10:35     2.00s   0.00s   0.10s   sshd:
+
+uptime – Tell How Long The System Has Been Running
+Uptime gives a one line display of the following information. The current time, how long the system has been running, how many users are currently logged on, and the system load averages for the past 1, 5, and 15 minutes.
+
+# uptime
+Output:
+
+10:49:30 up 29 min, 1 user, load average: 0.00, 0.01, 0.05
+
+System load averages is the average number of processes that are either in a runnable or uninterruptable state. A process in a runnable state is either using the CPU or waiting to use the CPU. A process in uninterruptable state is waiting for some I/O access, ex: waiting for disk. The averages are taken over the three time intervals. Load averages are not normalized for the number of CPUs in a system, so a load average of 1 means a single CPU system is loaded all the time while on a 4 CPU system it means it was idle 75% of the time.
+
+ps – report a snapshot of the current processes
+ps command will report a snapshot of the current processes. To select all processes use the -A or -e option,
+# ps -e
+ps is just like top but provides more information.
+
+To Show Long Format Output
+# ps –el
+
+To turn on extra full mode (it will show command line arguments passed to process):
+# ps -elF
+
+To Print All Process on the Server
+# ps ex
+# ps aux
+
+To Print A Process Tree
+# ps -ejH
+# ps axjf
+
+To Print Security Information
+# ps -eo euser,ruser,suser,fuser,f,comm,label
+# ps axZ
+# ps -eM
+
+To See Every Process Running As User Foxtech
+# ps -U foxtech -u foxtech u
+
+To Display Only the Process IDs of sshd
+# ps -C sshd -o pid=
+OR
+# pgrep sshd
+
+To Display the Name of PID 1996
+# ps -p 1996 -o comm=
+
+To Find Out the Top 10 Memory Consuming Process
+# ps -auxf | sort -nr -k 4 | head -10
+
+To Find Out top 10 CPU Consuming Process
+# ps -auxf | sort -nr -k 3 | head -10
+
+vmstat – Report virtual memory statistics
+vmstat reports information about processes, memory, paging, block IO, traps, disks and cpu activity.
+
+The first report produced gives averages since the last reboot. Additional reports give information on a sampling period of length delay. The process and memory reports are instantaneous in either case.
+
+# vmstat 5
+
+To check Memory Utilization Slab info
+
+# vmstat -m
+
+To check Active / Inactive Memory details
+
+# vmstat -a
+
+free – Memory Usage
+Free displays the total amount of free and used physical and swap memory in the system, as well as the buffers and caches used by the kernel. The information is gathered by parsing proc/meminfo.
+
+# free
+
+iostat – Average CPU Load, Disk Activity
+The command iostat report Central Processing Unit (CPU) statistics and input/output statistics for devices, partitions and network filesystems (NFS).
+# iostat -c -d -x -t -m /dev/md1 2 100
+
+Linux 2.6.18-308.16.1.el5.centos.plus (home8)
+
+01/31/2013     _i686_ (1 CPU)01/31/2013 09:56:01 AM
+
+avg-cpu: %user   %nice %system %iowait %steal   %idle
+
+14.78   0.38   3.47   2.16   0.00   79.21
+
+Device:         rrqm/s   wrqm/s     r/s     w/s   rMB/s   wMB/s avgrq-sz avgqu-sz   await r_await w_await svctm %util
+
+md1              0.00     0.00   0.04   0.05     0.00     0.00     8.17     0.00   0.00   0.00     0.00   0.00   0.00
+
+01/31/2013 09:56:03 AM
+
+avg-cpu: %user   %nice %system %iowait %steal   %idle
+
+6.00   0.00   2.00   0.50   0.00   91.50
+
+Device:         rrqm/s   wrqm/s     r/s     w/s   rMB/s   wMB/s avgrq-sz avgqu-sz   await r_await w_await svctm %util
+
+md1               0.00     0.00   0.00   0.00     0.00     0.00     0.00     0.00   0.00   0.00     0.00   0.00   0.00
+
+01/31/2013 09:56:05 AM
+
+avg-cpu: %user   %nice %system %iowait %steal   %idle
+
+55.00   0.00   13.50   0.00   0.00   31.50
+
+Device:         rrqm/s   wrqm/s     r/s     w/s   rMB/s   wMB/s avgrq-sz avgqu-sz   await r_await w_await svctm %util
+
+md1              0.00     0.00   0.00   0.00     0.00     0.00     0.00     0.00   0.00   0.00     0.00   0.00   0.00
+
+sar – Collect and Report System Activity
+The sar command writes to standard output the contents of selected cumulative activity counters in the operating system. The accounting system, based on the values in the count and interval parameters, writes information the specified number of times spaced at the specified intervals in seconds.
+
+If the interval parameter is set to zero, the sar command displays the average statistics for the time since the system was started. If the interval parameter is specified without the count parameter, then reports are generated continuously.
+
+The collected data can also be saved in the file specified by the -o filename flag, in addition to being displayed onto the screen. If filename is omitted, sar uses the standard system activity daily data file, the /var/log/sa/sadd file,where the dd parameter indicates the current day.
+
+By default all the data available from the kernel are saved in the data file.
+# sar -n DEV | more
+
+To display the network counters from the 12th:
+# sar -n DEV -f /var/log/sa/sa12 | more
+
+You can also display real time usage using sar:
+# sar 3 5
+sar
+
+mpstat – processors related statistics
+The mpstat command can be used both on SMP and UP machines, but in the latter, only global average activities will be printed. If no activity has been selected, then the default report is the CPU utilization report. To check average CPU utilization per processor,
+
+#mpstat
+
+mpstat
+
+to check average CPU utilization per processor
+
+# mpstat -P ALL
+
+pmap – Process Memory Usage
+The pmap command reports the memory map of a process or processes. Normally it will help us to debug memory bottleneck issue.
+
+# pmap -d PID
+To display process memory information for pid # 746, enter:
+# pmap -d 746
+746:   /usr/bin/docker daemon -H fd://
+
+Address           Kbytes Mode Offset           Device   Mapping0000000000400000   28344 r-x– 0000000000000000 0ca:00002 docker00000000021ae000       8 r—- 0000000001bae000 0ca:00002 docker00000000021b0000     232 rw— 0000000001bb0000 0ca:00002 docker00000000021ea000     216 rw— 0000000000000000 000:00000   [ anon ]000000000333f000     264 rw— 0000000000000000 000:00000   [ anon ]000000c000000000     36 rw— 0000000000000000 000:00000   [ anon ]000000c81fee0000   7296 rw— 0000000000000000 000:00000   [ anon ]000000c820600000   5120 rw— 0000000000000000 000:00000   [ anon ]000000c820b00000   1024 rw— 0000000000000000 000:00000   [ anon ]000000c820c00000   14336 rw— 0000000000000000 000:00000   [ anon ]000000c821a00000   2048 rw— 0000000000000000 000:00000   [ anon ]………….00007f1401464000     16 rw— 0000000000000000 000:00000   [ anon ]00007f1401468000     132 r-x– 0000000000000000 0ca:00002 ld-2.17.so00007f140148a000   1752 rw— 0000000000000000 000:00000   [ anon ]00007f1401640000     72 r-x– 0000000000000000 0ca:00002 libudev.so.1.6.200007f1401652000       4 —– 0000000000012000 0ca:00002 libudev.so.1.6.200007f1401653000       4 r—- 0000000000012000 0ca:00002 libudev.so.1.6.200007f1401654000       4 rw— 0000000000013000 0ca:00002 libudev.so.1.6.200007f1401655000     24 rw— 0000000000000000 000:00000   [ anon ]00007f140165b000     152 r-x– 0000000000000000 0ca:00002 libsystemd.so.0.6.000007f1401681000       4 r—- 0000000000025000 0ca:00002 libsystemd.so.0.6.000007f1401682000       4 rw— 0000000000026000 0ca:00002 libsystemd.so.0.6.000007f1401688000     4 rw— 0000000000000000 000:00000   [ anon ]00007f1401689000       4 r—- 0000000000021000 0ca:00002 ld-2.17.so00007f140168a000       4 rw— 0000000000022000 0ca:00002 ld-2.17.so00007f140168b000       4 rw— 0000000000000000 000:00000   [ anon ]00007ffc8dc5f000     132 rw— 0000000000000000 000:00000   [ stack ]00007ffc8dcc5000       8 r-x– 0000000000000000 000:00000   [ anon ]ffffffffff600000       4 r-x– 0000000000000000 000:00000   [ anon ] mapped: 735960K   writeable/private: 133884K   shared: 32K  The last line is very important:
+
+mapped: 735960K   total amount of memory mapped to files
+writeable/private: 133884K   the amount of private address space
+shared: 32K the amount of address space this process is sharing with others
+netstat – Network Statistics
+Netstat prints information about the Linux networking subsystem. The type of information printed is controlled by the first argument, as follows:
+
+By default, netstat displays a list of open sockets. If you don’t specify any address families, then the active sockets of all configured address families will be printed.
+
+#netstat
+
+netstat
+
+To check all open TCP and UDP ports
+
+# netstat -tulpn
+
+tcpdump – Detailed Network Traffic Analysis
+Tcpdump prints out a description of the contents of packets on a network interface that match the boolean expression. It can also be run with the -w flag, which causes it to save the packet data to a file for later analysis, and/or with the -r flag, which causes it to read from a saved packet file rather than to read packets from a network interface. It can also be run with the -V flag, which causes it to read a list of saved packet files. In all cases, only packets that match expression will be processed by tcpdump.
+
+To capture the network traffic on the particular interface,
+# tcpdump -i eth0
+
+To capture the network traffic between two IP address.
+
+# tcpdump src 192.168.0.161 and dst host 192.168.0.84 -c 10
+
+To capture the specific local port traffic using tcpdump,
+
+# tcpdump src port 22 -c 5
+
+To capture network traffic of destination port,
+
+# tcpdump dst port 22 -c 5
+
+If you couldn’t find the tcpdump in Redhat Linux, install it using
+
+# yum list | grep tcpdump
+
+tcpdump.x86_64             14:4.5.1-3.el7     rhui-REGION-rhel-server-releases
+
+# yum install tcpdump.x86_64
+
+/Proc file system – Various Kernel Statistics
+/proc file system provides detailed information about various hardware devices and other Linux kernel information. See Linux kernel /proc documentations for further details. Common /proc examples:
+# cat /proc/cpuinfo
+# cat /proc/meminfo
+# cat /proc/zoneinfo
+# cat /proc/mounts
