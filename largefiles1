@@ -1,0 +1,93 @@
+How To Find Largest Top 10 Files and Directories On Linux / UNIX / BSD
+How do I find the largest top files and directories on a Linux or Unix-like operating systems?
+
+Sometimes it is necessary to know what file(s) or directories are eating up all your disk space. Further, it may be required to find out it at the particular directory location on filesystem such as /tmp/ or /var/ or /home/. This guide will help you to use Unix and Linux command for finding the largest or biggest the files or directories on the filesystem.
+
+How to find out top 10 files and directories on Linux or Unix
+There is no simple command available to find out the largest files/directories on a Linux/UNIX/BSD filesystem. However, combination of following three commands (using pipes) you can easily find out list of largest files: Steps to find Largest Directories in Linux
+
+du command : Estimate file space usage.
+sort command : Sort lines of text files or given input data.
+head command : Output the first part of files i.e. to display first 10 largest file.
+find command : Search file.
+How to find out top Directories and files in Linux
+Type the following command at the shell prompt to find out top 10 largest file/directories:
+# du -a /var | sort -n -r | head -n 10
+
+Sample outputs:
+
+1008372 /var
+313236  /var/www
+253964  /var/log
+192544  /var/lib
+152628  /var/spool
+152508  /var/spool/squid
+136524  /var/spool/squid/00
+95736   /var/log/mrtg.log
+74688   /var/log/squid
+62544   /var/cache
+If you want more human readable output try (works with GNU/Linux du version/user only):
+$ cd /path/to/some/where
+$ du -hsx * | sort -rh | head -10
+$ du -hsx -- * | sort -rh | head -10
+
+Where,
+
+du command -h option : display sizes in human readable format (e.g., 1K, 234M, 2G).
+du command -s option : show only a total for each argument (summary).
+du command -x option : skip directories on different file systems.
+sort command -r option : reverse the result of comparisons.
+sort command -h option : compare human readable numbers. This is GNU sort specific option only.
+head command -10 OR -n 10 option : show the first 10 lines.
+The above command will only work of GNU/sort is installed. Other Unix like operating system should use the following version (see comments below):
+
+for i in G M K
+do 
+  du -ah | grep [0-9]$i | sort -nr -k 1
+done | head -n 11
+Sample outputs:
+
+179M	.
+84M	./uploads
+57M	./images
+51M	./images/faq
+49M	./images/faq/2013
+48M	./uploads/cms
+37M	./videos/faq/2013/12
+37M	./videos/faq/2013
+37M	./videos/faq
+37M	./videos
+36M	./uploads/faq
+Find the largest file in a directory and its subdirectories using the find command
+Type the following GNU/find command:
+
+## Warning: only works with GNU find ##
+find /path/to/dir/ -printf '%s %p\n'| sort -nr | head -10
+find . -printf '%s %p\n'| sort -nr | head -10
+Sample outputs:
+
+5700875 ./images/faq/2013/11/iftop-outputs.gif
+5459671 ./videos/faq/2013/12/glances/glances.webm
+5091119 ./videos/faq/2013/12/glances/glances.ogv
+4706278 ./images/faq/2013/09/cyberciti.biz.linux.wallpapers_r0x1.tar.gz
+3911341 ./videos/faq/2013/12/vim-exit/vim-exit.ogv
+3640181 ./videos/faq/2013/12/python-subprocess/python-subprocess.webm
+3571712 ./images/faq/2013/12/glances-demo-large.gif
+3222684 ./videos/faq/2013/12/vim-exit/vim-exit.mp4
+3198164 ./videos/faq/2013/12/python-subprocess/python-subprocess.ogv
+3056537 ./images/faq/2013/08/debian-as-parent-distribution.png.bak
+You can skip directories and only display files, type:
+
+## How to Find Out Top Directories and Files (Disk Space) in Linux Using Find ##
+find /path/to/search/ -type f -printf '%s %p\n'| sort -nr | head -10
+OR
+
+## another option ##
+find /path/to/search/ -type f -iname "*.mp4" -printf '%s %p\n'| sort -nr | head -10
+Hunt down disk space hogs with ducks
+Let us find out top directories and files using disk space in Linux or Unix with help of the following bash shell alias:
+
+## shell alias ##  
+alias ducks='du -cks * | sort -rn | head'
+## deal with special files names ##
+alias ducks='du -cks -- * | sort -rn | head'
