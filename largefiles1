@@ -91,3 +91,127 @@ Let us find out top directories and files using disk space in Linux or Unix with
 alias ducks='du -cks * | sort -rn | head'
 ## deal with special files names ##
 alias ducks='du -cks -- * | sort -rn | head'
+Finding all large files in the root filesystem
+Viewed 400k times
+
+136
+
+
+65
+I have a linux server, which currently has below space usage:
+
+/dev/sda3              20G   15G  4.2G  78% /
+/dev/sda6              68G   42G   23G  65% /u01
+/dev/sda2              30G  7.4G   21G  27% /opt
+/dev/sda1              99M   19M   76M  20% /boot
+tmpfs                  48G  8.2G   39G  18% /dev/shm
+As you can see. / is at 78%. I want to check, which files or folders are consuming space.
+
+I tried this:
+
+find . -type d -size +100M
+Which shows result like this:
+
+./u01/app/june01.dbf
+./u01/app/temp01.dbf
+./u01/app/smprd501.dbf
+./home/abhishek/centos.iso
+./home/abhishek/filegroup128.jar
+Now this is my issue. I only want the name of those files located in folders that are consuming space at / and not at /u01 or /home. Since / is base of everything, it is showing me every file of my server.
+
+Is is possible to get big files that is contributing to 78% of / ?
+
+find disk-usage
+share  edit  follow 
+
+Get updates on questions and answers
+edited Jul 2 '14 at 22:33
+
+Gilles 'SO- stop being evil'
+624k151151 gold badges12811281 silver badges17961796 bronze badges
+asked Jul 2 '14 at 12:26
+
+Abhishek dot py
+1,71344 gold badges1111 silver badges1313 bronze badges
+3
+See the -xdev find predicate. See also du -kx / | xdu (or xdiskusage). – Stéphane Chazelas Jul 2 '14 at 12:30 
+See also my answer to a related question. – jofel Jul 2 '14 at 13:32
+1
+relevant find . -type f -print | xargs du -sk | sort -rn – user13107 Jul 2 '14 at 14:54 
+Related: stackoverflow.com/questions/12522269/… – Ciro Santilli 冠状病毒审查六四事件法轮功 May 21 '19 at 13:34
+add a comment
+3 Answers
+Active
+Oldest
+Votes
+
+237
+
+Try:
+
+find / -xdev -type f -size +100M
+It lists all files that has size bigger than 100M.
+
+If you want to know about directory, you can try ncdu.
+
+If you aren't running Linux, you may need to use -size +204800 or -size +104857600c, as the M suffix to mean megabytes isn't in POSIX.
+
+find / -xdev -type f -size +102400000c
+share  edit  follow 
+edited Jul 3 '14 at 5:25
+answered Jul 2 '14 at 12:41
+
+cuonglm
+122k3030 gold badges252252 silver badges346346 bronze badges
+3
+-xdev just prevents find from walking across filesystems, so you'll only search your current physical drive. If that's not what you want, just remove the -xdev arg. – hobs Jan 13 '19 at 5:58
+add a comment
+
+51
+
+In addition to @Gnouc answer , you can also add ls -la to get more details. You should have sudo privileges to do that .
+
+$ find / -xdev -type f -size +100M -exec ls -la {} \; | sort -nk 5
+To only see files that are in the gigbyte, do:
+
+root# du -ahx / | grep -E '\d+G\s+'
+
+
+1.8G    /.Spotlight-V100/Store-V2/A960D58E-A644-4497-B3C1-866A529BF919
+1.8G    /.Spotlight-V100/Store-V2
+share  edit  follow 
+edited Mar 21 '18 at 15:32
+answered Jul 2 '14 at 13:12
+
+zee
+85077 silver badges99 bronze badges
+add a comment
+
+48
+
+The following command not only find you the top 50 largest files (>100M) on your filesystem, but also sort (GNU sort) by the biggest:
+
+find / -xdev -type f -size +100M -exec du -sh {} ';' | sort -rh | head -n50
+-xdev Don't descend directories on other filesystems.
+
+On BSD find use -x which is equivalent to the deprecated -xdev primary.
+
+For all files and directories, it's even easier:
+
+du -ahx / | sort -rh | head -20
+(the -x flag is what's required to constrain du to a single filesystem)
+
+If you're not using GNU sort (from coreutils), use it without -h:
+
+du -ax / | sort -rn | head -20
+For current directory only (for quicker results), replace / with ..
+
+share  edit  follow 
+edited Dec 5 '19 at 0:17
+answered Feb 1 '16 at 11:26
+
+kenorb
+13.4k66 gold badges9696 silver badges136136 bronze badges
+1
+I would mention that this method is good because -h shows human readable output, and add a sample output. – Ciro Santilli 冠状病毒审查六四事件法轮功 May 21 '19 at 13:32
+Very good solution. Thank you. – Tigin Aug 6 '19 at 11:04
