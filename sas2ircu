@@ -1,0 +1,673 @@
+using sa2ircu commands for disk array information 
+
+sas2ircu 0 display
+sas2ircu 0 display | more
+sas2ircu --help
+sas2ircu 0 LOCATE --help
+sas2ircu 0 LOCATE 1:3 ON
+sas2ircu 0 LOCATE 1:3 OFF
+
+
+Debian
+WIKI
+Login
+FrontPage
+RecentChanges
+FindPage
+HelpContents
+Search
+  
+Debian
+Wiki/
+LoginInfoAttachments
+
+More Actions:
+LinuxRaidForAdmins
+Translation(s): none
+
+
+Linux and Hardware RAID: an administrator's summary
+Contents
+
+Linux and Hardware RAID: an administrator's summary
+Summary of all known drivers
+Details about individual drivers
+Related pages
+For RAID to be useful in an enterprise environment, one needs to get a warning when a disk fails, and be able to replace this disk without having to reboot. This page is a summary of the status of some (most/all) hardware RAID drivers supported by the default Linux kernel.
+
+The following criteria is being considered:
+
+Driver name
+Name of the Linux kernel module. If the name changes between kernel versions, remember to include information in the detailed information section.
+Supported
+Supported by Linux kernel? Is the kernel driver needed for this RAID system available in the default kernel?
+Status
+RAID status easily available? Is there a text file in /proc/ or similar reporting the status of the RAID systems? If not, is the source for some command line tool available which can report this status? (Minimum status information is OK or degraded (i.e. some disk is faulty/missing). If such information is easily available, monitoring tools can be written to detect and report failures.
+Command Line Interface (CLI) tool
+CLI tool for manipulating the RAID? Is the source for a command line interface tool available for adding and removing disks from the RAID set? This is a must when maintaining a lot of machines using for instance a serial line console. The source must be acceptable into debian/main.
+Graphical User Interface (GUI) tool
+GUI tool for manipulating the RAID? Some find it easier to use graphical tools. Same source requirements as the CLI tools.
+Debian-Installer
+Is the hardware supported by the Debian-Installer? If not, please report a bug with workaround if known.
+Summary of all known drivers
+Driver name
+
+Supported
+
+Status
+
+CLI tool
+
+GUI tool
+
+Debian-Installer
+
+3w-xxxx
+
+Yes
+
+No
+
+Yes*
+
+Yes
+
+Yes
+
+3w-9xxx
+
+Yes
+
+No
+
+Yes*
+
+Yes
+
+Yes
+
+aacraid
+
+Yes
+
+Yes
+
+Yes
+
+Yes
+
+No
+
+arcmsr
+
+Yes*
+
+No*
+
+Yes*
+
+**
+
+Yes*
+
+cciss
+
+Yes
+
+Yes
+
+?
+
+?
+
+Yes
+
+DAC960
+
+Yes
+
+Yes
+
+?
+
+?
+
+Yes
+
+dpt_i2o
+
+Yes
+
+?
+
+Yes
+
+?
+
+?
+
+gdth
+
+Yes
+
+Yes
+
+No*
+
+?
+
+Yes
+
+hpsa
+
+Yes
+
+Yes
+
+Yes
+
+?
+
+?
+
+ips
+
+Yes
+
+No*
+
+No*
+
+No*
+
+Yes
+
+megaraid
+
+Yes
+
+?
+
+?
+
+?
+
+?
+
+megaraid_mbox
+
+Yes
+
+?
+
+?
+
+?
+
+?
+
+megaraid_sas
+
+Yes
+
+?
+
+Proprietary
+
+?
+
+?
+
+mptsas
+
+Yes
+
+Yes
+
+Yes
+
+?
+
+?
+
+mpt2sas
+
+?
+
+?
+
+?
+
+?
+
+?
+
+mptscsih
+
+Yes
+
+Yes
+
+Yes
+
+?
+
+?
+
+Details about individual drivers
+3w-xxxx
+Hardware using this driver: 3ware 8xxx controllers and earlier.
+
+There is a CLI tool (tw_cli) from 3Ware which supports all functions of the card.
+
+There is a GUI tool (3dm2) accessible via browser used for management and monitoring daemon that configures the RAID, monitors the disk status and sends mail on failure.
+
+Both tools are available as Debian packages from http://jonas.genannt.name/
+
+Supported Devices
+The page HowToIdentifyADevice/PCI explains how to identify a PCI device.
+
+The following list is based on the alias fields of modinfo 3w-xxxx in Debian 3.16 (3.16.7-ckt9-3deb8u1) kernel images.
+
+
+
+PCI: 13C1:1000 3ware Inc 5xxx/6xxx-series PATA-RAID
+PCI: 13C1:1001 3ware Inc 7xxx/8xxx-series PATA/SATA-RAID
+
+
+3w-9xxx
+Hardware using this driver: 3Ware 9xxx as 9500s and newer as 9690SA-8I, 9650SE.
+
+There is a CLI tool (tw_cli) from 3Ware which supports all functions of the card.
+
+There is a GUI tool (3dm2) accessible via browser used for management and monitoring daemon that configures the RAID, monitors the disk status and sends mail on failure.
+
+Both tools are available as Debian packages from http://jonas.genannt.name/
+
+Supported Devices
+The page HowToIdentifyADevice/PCI explains how to identify a PCI device.
+
+The following list is based on the alias fields of modinfo 3w-9xxx in Debian 3.16 (3.16.7-ckt9-3deb8u1) kernel images.
+
+
+
+PCI: 13C1:1002 3ware Inc 9xxx-series SATA-RAID
+PCI: 13C1:1003 3ware Inc 9550SX SATA-II RAID PCI-X
+PCI: 13C1:1004 3ware Inc 9650SE SATA-II RAID PCIe
+PCI: 13C1:1005 3ware Inc 9690SA SAS/SATA-II RAID PCIe
+
+
+aacraid
+Hardware using this driver: Dell PowerEdge 2650, Adaptec SCSI RAIDs 2200S, 2120S, SATA RAID 2810SA, Perc 3/Di controllers.
+
+Adaptec and Dell used to provide afacli tool for manipulating RAID sets, however it is no longer supporting the current AACRAID controllers. Also, afacli requires libraries that are no longer available in Debian distributions. At the end of aacraid section is the old information on tools available on Dell website, which may be useful for older distributions and controllers.
+
+Current software for managing AAC arrays is available at Adaptec website: http://www.adaptec.com/en-us/downloads/storage_manager/sm/productid=aar-2820sa&dn=adaptec+serial+ata+ii+raid+2820sa.html, latest version is Adaptec Storage Manager v5.20.17414 for Linux (available also in 64bit version).
+
+This RPM archive includes both arcconf binary, as well as Storage Manager - GUI tool, using SUN Java (binaries are included in RPM)
+
+After installing the package, the following actions are required:
+
+run grep aac /proc/devices, you will get a number in answer like 253 aac
+
+create appropriate device using this number: mknod /dev/afa0 c 253 0
+
+to get array status, usually one needs to launch: arcconf getconfig 1
+
+Note: arcconf requires libstdc++.so.5 library, available in the libstdc++5 package.
+
+Below is information on the old afacli tool
+
+Dell also provides some admin tools in binary form. See http://linux.dell.com/storage.shtml#aacraid, under the Management Utility heading.
+
+Latest version seems to be provided as afaapps-4.1-0.i386.rpm out of an archive available on support site as afa-apps-snmp.2807420-A04.tar.gz. The RPM can be converted to .deb package which will install fine.
+however, the version of afacli in afaapps-4.1-0.i386.rpm seems not to be working for etch on my PE4400 (strace-ing doesn't help much, other report and workaround here also : http://lists.us.dell.com/pipermail/linux-poweredge/2007-July/032200.html)...
+
+so had to revert to previous version provided in in afa-apps-snmp.2806076-A02.tar.gz which contains afaapps-2.8-0.i386.rpm...
+at the end of 2007 Adaptec released new version of their arcconf utility which supports newer raid cards; moreover it's finally available for amd64 arch (no need in ia32-libs). This utility along with other crap can be downloaded here: i386, amd64 (newest version as of 18/jan/2008 is 5.20.17414)
+
+NB: I had some problems with Adaptec 2810SA. Debian kernel freezes (rejected IO to offline devices) in case array becomes downgraded (ie one disk failed). I had to patch kernel with adaptec driver, and kernel stops freezing with one drive fail -- AlexanderVlasov
+
+Supported Devices
+The page HowToIdentifyADevice/PCI explains how to identify a PCI device.
+
+The following list is based on the alias fields of modinfo aacraid in Debian 3.16 (3.16.7-ckt9-3deb8u1) kernel images.
+
+
+
+PCI: 1011:0046 Digital Equipment Corporation DECchip 21554
+PCI: 1028:0001 Dell PowerEdge Expandable RAID Controller 2/Si
+PCI: 1028:0002 Dell PowerEdge Expandable RAID Controller 3/Di
+PCI: 1028:0003 Dell PowerEdge Expandable RAID Controller 3/Si
+PCI: 1028:0004 Dell PowerEdge Expandable RAID Controller 3/Di [Iguana]
+PCI: 1028:000A Dell PowerEdge Expandable RAID Controller 3/Di
+PCI: 9005:0200 Adaptec (Device name unknown)
+PCI: 9005:0283 Adaptec AAC-RAID
+PCI: 9005:0284 Adaptec AAC-RAID
+PCI: 9005:0285 Adaptec AAC-RAID
+PCI: 9005:0286 Adaptec AAC-RAID (Rocket)
+PCI: 9005:0287 Adaptec (Device name unknown)
+PCI: 9005:0288 Adaptec (Device name unknown)
+PCI: 9005:028B Adaptec Series 6 - 6G SAS/PCIe 2
+PCI: 9005:028C Adaptec Series 7 6G SAS/PCIe 3
+PCI: 9005:028D Adaptec Series 8 12G SAS/PCIe 3
+PCI: 9005:028F Adaptec (Device name unknown)
+
+
+arcmsr
+Hardware using this driver: all ARECA SATA controllers.
+
+Areca is a fairly new player on the SATA Hardware RAID market, but they offer unprecedented features and have excellent driver support for Linux. Their hardware supports RAID-6 in addition to the other levels, and online expansion + migration as well. The driver is in the main kernel as of 2.6.19, but debian supports it since etch (2.6.18).
+
+They have, amongst others, an 'archttp' module which enables a web interface(!) to the card which offers full functionality. Archttp is statically linked so it will run in virtually all circumstances. Since it offers both a wide range of monitoring and maintenance functions, archttp + a webbrowser is all you'll ever need, and it fulfills, IMHO, the functions of CLI, GUI and proc entry all in one. (Well, you really have to see it.)
+
+Beware: archttp tries to use /dev/ttyS0, so if you use it in any other way you should take care about this issue.
+
+CLI tool (statically linked i386 and amd64 binaries) also can be downloaded from ftp site. The 'sg' module must be loaded for it to work, the cli program segfaults without it. Vendor support page: http://www.areca.com.tw/support/main.htm
+
+* The new ARC-18xx series is NOT supported by the old driver included in the Kernel, only the ARC11xx/12xx/13xx/16xx will work
+
+** Most of their series have an out-of-band management with build in Webserver, no need for installing any software to manage controllers/arrays
+
+Supported Devices
+The page HowToIdentifyADevice/PCI explains how to identify a PCI device.
+
+The following list is based on the alias fields of modinfo arcmsr in Debian 3.16 (3.16.7-ckt9-3deb8u1) kernel images.
+
+
+
+PCI: 17D3:1110 Areca Technology Corp. ARC-1110 4-Port PCI-X to SATA RAID Controller
+PCI: 17D3:1120 Areca Technology Corp. ARC-1120 8-Port PCI-X to SATA RAID Controller
+PCI: 17D3:1130 Areca Technology Corp. ARC-1130 12-Port PCI-X to SATA RAID Controller
+PCI: 17D3:1160 Areca Technology Corp. ARC-1160 16-Port PCI-X to SATA RAID Controller
+PCI: 17D3:1170 Areca Technology Corp. ARC-1170 24-Port PCI-X to SATA RAID Controller
+PCI: 17D3:1200 Areca Technology Corp. (Device name unknown)
+PCI: 17D3:1201 Areca Technology Corp. ARC-1200 2-Port PCI-Express to SATA II RAID Controller
+PCI: 17D3:1202 Areca Technology Corp. (Device name unknown)
+PCI: 17D3:1210 Areca Technology Corp. ARC-1210 4-Port PCI-Express to SATA RAID Controller
+PCI: 17D3:1214 Areca Technology Corp. (Device name unknown)
+PCI: 17D3:1220 Areca Technology Corp. ARC-1220 8-Port PCI-Express to SATA RAID Controller
+PCI: 17D3:1230 Areca Technology Corp. ARC-1230 12-Port PCI-Express to SATA RAID Controller
+PCI: 17D3:1260 Areca Technology Corp. ARC-1260 16-Port PCI-Express to SATA RAID Controller
+PCI: 17D3:1270 Areca Technology Corp. (Device name unknown)
+PCI: 17D3:1280 Areca Technology Corp. ARC-1280/1280ML 24-Port PCI-Express to SATA II RAID Controller
+PCI: 17D3:1380 Areca Technology Corp. (Device name unknown)
+PCI: 17D3:1381 Areca Technology Corp. (Device name unknown)
+PCI: 17D3:1680 Areca Technology Corp. ARC-1680 8 port PCIe/PCI-X to SAS/SATA II RAID Controller
+PCI: 17D3:1681 Areca Technology Corp. (Device name unknown)
+PCI: 17D3:1880 Areca Technology Corp. ARC-1880 8/12 port PCIe/PCI-X to SAS/SATA II RAID Controller
+
+
+cciss
+Hardware using this driver: various servers from Compaq/HP, HP ProLiant DL380 G5, etc. (RAID controller HP P410*, etc.)
+
+A daemon detecting status changes and reporting to syslog as SNMP traps is packaged as cpqarrayd. Some information is available in /proc/driver/cciss/cciss0. The array-info tool can extract the RAID status for cciss devices.
+
+The cciss_vol_status tool (packaged as cciss-vol-status) will report RAID status for cciss devices. See bug #656630 for a proposal for a controller status monitoring tool based on cciss_vol_status output.
+
+May be replaced by hpsa in recent kernels
+
+Supported Devices
+The page HowToIdentifyADevice/PCI explains how to identify a PCI device.
+
+The following list is based on the alias fields of modinfo cciss in Debian 3.16 (3.16.7-ckt9-3deb8u1) kernel images.
+
+
+
+PCI: 0E11:0046 Compaq Computer Corporation Smart Array 64xx
+PCI: 0E11:B060 Compaq Computer Corporation Smart Array 5300 Controller
+PCI: 0E11:B178 Compaq Computer Corporation Smart Array 5i/532
+PCI: 103C:3220 Hewlett-Packard Company Smart Array P600
+PCI: 103C:3230 Hewlett-Packard Company Smart Array Controller
+PCI: 103C:3238 Hewlett-Packard Company Smart Array E200i (SAS Controller)
+
+
+DAC960
+Hardware using this driver: Mylex AcceleRAID 352/170/160.
+
+Status information is available in /proc/rd/status.
+
+Supported Devices
+The page HowToIdentifyADevice/PCI explains how to identify a PCI device.
+
+The following list is based on the alias fields of modinfo DAC960 in Debian 3.16 (3.16.7-ckt9-3deb8u1) kernel images.
+
+
+
+PCI: 1011:1065 Digital Equipment Corporation StrongARM DC21285
+PCI: 1069:0001 Mylex Corporation DAC960P
+PCI: 1069:0002 Mylex Corporation DAC960PD
+PCI: 1069:0010 Mylex Corporation DAC960PG
+PCI: 1069:0050 Mylex Corporation AcceleRAID 352/170/160 support Device
+PCI: 1069:B166 Mylex Corporation AcceleRAID 600/500/400/Sapphire support Device
+PCI: 1069:BA56 Mylex Corporation eXtremeRAID 2000/3000 support Device
+
+
+dpt_i2o
+Hardware using this driver: Adaptec SCSI RAIDs 2000S, 2100S, IDE RAID 2400A.
+
+Command-line utilities are packaged for Debian as dpt-i2o-raidutils.
+
+Supported Devices
+The page HowToIdentifyADevice/PCI explains how to identify a PCI device.
+
+The following list is based on the alias fields of modinfo dpt_i2o in Debian 3.16 (3.16.7-ckt9-3deb8u1) kernel images.
+
+
+
+PCI: 1044:A501 Adaptec (formerly DPT) SmartRAID V Controller
+PCI: 1044:A511 Adaptec (formerly DPT) SmartRAID V Controller
+
+
+gdth
+Hardware using this driver: ICP Vortex GDT6118RD, Intel RAID Controller SRCZCR, Intel SATA RAID Controller SRCS14L.
+
+Status information is available in /proc/scsi/gdth/0. Some tools and drivers are available from the vendor. Some linux tools are available on a CD included with the controller. Debian packages storcon and srcd are hidden in ir1_linux_utils_2.16.zip downloadable from Intel Download service (2.16, i386) or ICP Vortex site (2.17, i386 & amd64)
+
+Supported Devices
+The page HowToIdentifyADevice/PCI explains how to identify a PCI device.
+
+The following list is based on the alias fields of modinfo gdth in Debian 3.16 (3.16.7-ckt9-3deb8u1) kernel images.
+
+
+
+PCI: 8086:0600 Intel Corporation RAID Controller
+PCI: 8086:0601 Intel Corporation (Device name unknown)
+
+
+hpsa
+This is the 'next generation' driver which replaces cciss for many cards. Notably this driver uses the kernel scsi subsystem rather than implementing its own block device. As such disks presented by this driver will have the normal /dev/sdX naming rather than /dev/cciss/c0d0 used with the cciss driver.
+
+Hardware using this driver: various servers from Compaq/HP, HP ProLiant DL380 G5, etc. (RAID controller HP P410*, etc.)
+
+Utilities for the cciss driver also work with this driver, though they should be directed to use the /dev/sgX generic scsi devices rather than the cciss devices as all the HP specific IOCTL interfaces are identical.
+
+See also HP/ProLiant#HP_Repository and http://hwraid.le-vert.net/wiki/SmartArray for links to the proprietary HP tools, including the hpacucli management CLI tool.
+
+Supported Devices
+The page HowToIdentifyADevice/PCI explains how to identify a PCI device.
+
+The following list is based on the alias fields of modinfo hpsa in Debian 3.16 (3.16.7-ckt9-3deb8u1) kernel images.
+
+
+
+PCI: 103C:3239 Hewlett-Packard Company Smart Array Gen9 Controllers
+PCI: 103C:323A Hewlett-Packard Company Smart Array G6 controllers
+PCI: 103C:323B Hewlett-Packard Company Smart Array Gen8 Controllers
+PCI: 103C:323C Hewlett-Packard Company Smart Array Gen8+ Controllers
+PCI: 103C:333F Hewlett-Packard Company (Device name unknown)
+PCI: 1590:0075 Hewlett-Packard Company (Device name unknown)
+
+
+In the above list, "Smart Array G6 controllers" include the P212, P410, P410i, P411, P711m, P712m and P812.
+
+ips
+Hardware using this driver: IBM Netfinity 5500, IBM Netfinity 5600, IBM eserver xSeries 226, IBM eserver xSeries 345, IBM eserver xSeries 346.
+
+Information on BIOS version and RAID configuration is available from /proc/scsi/ips/0. This file does not contain the RAID status. Note: /proc/scsi/ips/0 seems to be not provided anymore. Tested with Linux 3.16 and 4.5.
+
+There is a precompiled command line tool (ipssend) available from the vendor CD and IBM's dumplog archive. It can be used to get information on the RAID status, and also be used to configure and administrate the RAID. Note: The ipssend binary does crash when trying to access the non existing /proc/scsi/scsi directory. Tested ibm_utl_ipssend_7.12.14_linux_32-64.zip So this tool seems to be useless with current Linux versions.
+
+There is also a graphical raid tool (RaidMan) available in RPM format from the vendor CD.
+
+Supported Devices
+The page HowToIdentifyADevice/PCI explains how to identify a PCI device.
+
+The following list is based on the alias fields of modinfo ips in Debian 3.16 (3.16.7-ckt9-3deb8u1) kernel images.
+
+
+
+PCI: 1014:002E IBM SCSI RAID Adapter [ServeRAID]
+PCI: 1014:01BD IBM ServeRAID Controller
+PCI: 9005:0250 Adaptec ServeRAID Controller
+
+
+megaraid
+Hardware using this driver: Dell PowerEdge 2550.
+
+Status information is supposed to be available in /proc/megaraid/*/raiddrives-*. This was not the case on at least one Dell PowerEdge 2550 machine.
+
+
+Supported Devices
+The page HowToIdentifyADevice/PCI explains how to identify a PCI device.
+
+The following list is based on the alias fields of modinfo megaraid in Debian 3.16 (3.16.7-ckt9-3deb8u1) kernel images.
+
+
+
+PCI: 101E:9010 American Megatrends Inc. MegaRAID 428 Ultra RAID Controller
+PCI: 101E:9060 American Megatrends Inc. MegaRAID 434 Ultra GT RAID Controller
+PCI: 8086:1960 Intel Corporation 80960RP (i960RP) Microprocessor
+
+
+megaraid_mbox
+Hardware using this driver: Dell PowerEdge 2850, Intel SATA-RAID controllers.
+
+Note: To use the Intel SRCS28X controller with more than 4GB of system RAM you need at least firmware revision 814B.
+
+Not aware of any method of detecting the status for this RAID.
+
+Supported Devices
+The page HowToIdentifyADevice/PCI explains how to identify a PCI device.
+
+The following list is based on the alias fields of modinfo megaraid_mbox in Debian 3.16 (3.16.7-ckt9-3deb8u1) kernel images.
+
+
+
+PCI: 1000:0407 LSI Logic / Symbios Logic MegaRAID
+PCI: 1000:0408 LSI Logic / Symbios Logic MegaRAID
+PCI: 1000:0409 LSI Logic / Symbios Logic MegaRAID
+PCI: 1000:1960 LSI Logic / Symbios Logic MegaRAID
+PCI: 101E:1960 American Megatrends Inc. MegaRAID
+PCI: 1028:000E Dell PowerEdge Expandable RAID controller 4/Di
+PCI: 1028:000F Dell PowerEdge Expandable RAID controller 4/Di
+PCI: 1028:0013 Dell PowerEdge Expandable RAID controller 4
+
+
+megaraid_sas
+Hardware using this driver: Dell PowerEdge 2900, Dell PowerEdge 2950, Dell PowerEdge M600, Dell PowerEdge R510, IBM BladeCentre HS22 (via option card), Fujitsu TX120 S2
+
+There's a binary-only CLI tool (MegaCli) available for download from the LSI website. The zip file contains a 32bit RPM package containing the 32bit and 64bit ("MegaCli64") binary. There is also a megasasctl tool to get RAID status available from the megactl package on Sourceforge. There are Debian packages of both tools available from http://hwraid.le-vert.net/wiki/DebianPackages.
+
+For easily finding the Linux drive that corresponds to a MegaRAID drive, use megamap.
+
+Supported Devices
+The page HowToIdentifyADevice/PCI explains how to identify a PCI device.
+
+The following list is based on the alias fields of modinfo megaraid_sas in Debian 3.16 (3.16.7-ckt9-3deb8u1) kernel images.
+
+
+
+PCI: 1000:002F LSI Logic / Symbios Logic MegaRAID SAS 2208 IOV [Thunderbolt]
+PCI: 1000:005B LSI Logic / Symbios Logic MegaRAID SAS 2208 [Thunderbolt]
+PCI: 1000:005D LSI Logic / Symbios Logic MegaRAID SAS-3 3108 [Invader]
+PCI: 1000:005F LSI Logic / Symbios Logic MegaRAID SAS-3 3008 [Fury]
+PCI: 1000:0060 LSI Logic / Symbios Logic MegaRAID SAS 1078
+PCI: 1000:0071 LSI Logic / Symbios Logic MR SAS HBA 2004
+PCI: 1000:0073 LSI Logic / Symbios Logic MegaRAID SAS 2008 [Falcon]
+PCI: 1000:0078 LSI Logic / Symbios Logic (Device name unknown)
+PCI: 1000:0079 LSI Logic / Symbios Logic MegaRAID SAS 2108 [Liberator]
+PCI: 1000:007C LSI Logic / Symbios Logic MegaRAID SAS 1078DE
+PCI: 1000:0411 LSI Logic / Symbios Logic MegaRAID SAS 1068
+PCI: 1000:0413 LSI Logic / Symbios Logic MegaRAID SAS 1068 [Verde ZCR]
+PCI: 1028:0015 Dell PowerEdge Expandable RAID controller 5
+
+
+mptsas
+Hardware using this driver: Dell PowerEdge 860, Dell Precision 690 Workstation, IBM BladeCenter HS22.
+
+RAID status can be obtained via the mpt-status tool.
+
+IBM provides a binary only utility called 'CFGGEN' which can make changes to the raid configuration, flash disks and other actions.
+
+LSI provides 'lsiutil' which is notoriously hard to find
+
+Supported Devices
+The page HowToIdentifyADevice/PCI explains how to identify a PCI device.
+
+The following list is based on the alias fields of modinfo mptsas in Debian 3.16 (3.16.7-ckt9-3deb8u1) kernel images.
+
+
+
+PCI: 1000:0050 LSI Logic / Symbios Logic SAS1064 PCI-X Fusion-MPT SAS
+PCI: 1000:0054 LSI Logic / Symbios Logic SAS1068 PCI-X Fusion-MPT SAS
+PCI: 1000:0056 LSI Logic / Symbios Logic SAS1064ET PCI-Express Fusion-MPT SAS
+PCI: 1000:0058 LSI Logic / Symbios Logic SAS1068E PCI-Express Fusion-MPT SAS
+PCI: 1000:0059 LSI Logic / Symbios Logic MegaRAID SAS 8208ELP/8208ELP
+PCI: 1000:0062 LSI Logic / Symbios Logic SAS1078 PCI-Express Fusion-MPT SAS
+
+
+mpt2sas
+Hardware using this driver: Dell PowerEdge T310, IBM BladeCenter HS23.
+
+You can check the status and other things using the sas2ircu utiliity. More details
+
+A blog post claim supermicro provide a tool to get the status out from the command line.
+
+Supported Devices
+The page HowToIdentifyADevice/PCI explains how to identify a PCI device.
+
+The following list is based on the alias fields of modinfo mpt2sas in Debian 3.16 (3.16.7-ckt9-3deb8u1) kernel images.
+
+
+
+PCI: 1000:0064 LSI Logic / Symbios Logic SAS2116 PCI-Express Fusion-MPT SAS-2 [Meteor]
+PCI: 1000:0065 LSI Logic / Symbios Logic SAS2116 PCI-Express Fusion-MPT SAS-2 [Meteor]
+PCI: 1000:006E LSI Logic / Symbios Logic SAS2308 PCI-Express Fusion-MPT SAS-2
+PCI: 1000:0070 LSI Logic / Symbios Logic SAS2004 PCI-Express Fusion-MPT SAS-2 [Spitfire]
+PCI: 1000:0072 LSI Logic / Symbios Logic SAS2008 PCI-Express Fusion-MPT SAS-2 [Falcon]
+PCI: 1000:0074 LSI Logic / Symbios Logic SAS2108 PCI-Express Fusion-MPT SAS-2 [Liberator]
+PCI: 1000:0076 LSI Logic / Symbios Logic SAS2108 PCI-Express Fusion-MPT SAS-2 [Liberator]
+PCI: 1000:0077 LSI Logic / Symbios Logic SAS2108 PCI-Express Fusion-MPT SAS-2 [Liberator]
+PCI: 1000:007E LSI Logic / Symbios Logic SSS6200 PCI-Express Flash SSD
+PCI: 1000:0080 LSI Logic / Symbios Logic SAS2208 PCI-Express Fusion-MPT SAS-2
+PCI: 1000:0081 LSI Logic / Symbios Logic SAS2208 PCI-Express Fusion-MPT SAS-2
+PCI: 1000:0082 LSI Logic / Symbios Logic SAS2208 PCI-Express Fusion-MPT SAS-2
+PCI: 1000:0083 LSI Logic / Symbios Logic SAS2208 PCI-Express Fusion-MPT SAS-2
+PCI: 1000:0084 LSI Logic / Symbios Logic SAS2208 PCI-Express Fusion-MPT SAS-2
+PCI: 1000:0085 LSI Logic / Symbios Logic SAS2208 PCI-Express Fusion-MPT SAS-2
+PCI: 1000:0086 LSI Logic / Symbios Logic SAS2308 PCI-Express Fusion-MPT SAS-2
+PCI: 1000:0087 LSI Logic / Symbios Logic SAS2308 PCI-Express Fusion-MPT SAS-2
+
+
+mptscsih
+Hardware using this driver: Sun v20Z, IBM eServer 325/326.
+
+RAID status can be obtained via the mpt-status tool.
+
+Related pages
+Serial ATA (SATA) chipsets — Linux support status
+
+Linux and Hardware RAID configuration hints
+
+HP Smart Array CCISS (also hpsa) driver
+
+HWraid for GNU/Linux - not a bad reference. Includes utilities packaged for Debian & Ubuntu
+
+
+CategoryHardware | CategorySystemAdministration | ?CatgeoryRedundant: merge with other ?CategoryRaid pages
+
+LinuxRaidForAdmins (last modified 2019-09-07 10:28:30)
+
+Debian privacy policy
+MoinMoin PoweredPython PoweredDebian Wiki team, bugs and config available.Hosting provided by Metropolitan Area Network Darmstadt
