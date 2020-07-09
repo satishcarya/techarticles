@@ -1,0 +1,68 @@
+hdparm command in Linux with Examples
+“hdparm“(i.e, hard disk parameter) is one of the command line programs for Linux which is used to handle disk devices and hard disks. With the help of this command, you can get statistics about the hard disk, alter writing intervals, acoustic management, and DMA settings. It can also set parameters related to drive caches, sleep mode, power management, acoustic management, and DMA settings.
+
+Syntax:
+
+ hdparm [options] [device]
+Note: When no flags are specified, –acdgkmnru is presumed.
+
+Options:
+
+-a : It is used to Get/set enumeration of a section of file system read-ahead which is implemented to enhance the accomplishment of the uninterrupted reads of the files that are enormous in size.
+-A : It Disables/enable the IDE drive’s read-look-ahead property that is generally functioning by default.
+-b : It is used to Get/set bus state where, (0 == Off, 1 == On, 2 == tristate).
+-B : It is used to Set Advanced Power Management (APM) characteristics, but only if the drive can bear it. If its value is low then the APM is violent and if the value is high then it gives finer accomplishment. To disable the APM you need to set the value to 255.
+-c : It Query/enable (E)IDE 32-bit I/O support. Here, 32-bit alludes to the transmission of inputs over PCI or VLB bus.
+-C : It is used to inspect the ongoing IDE power mode position. The flags -S, -Y, -y, and -Z are used to control IDE power techniques in a skillful manner.
+-d : It disables or enables the flag used by “DMA” drive. It operates through the incorporation of drives and PCI.
+-D : It enables or disables the on-drive defect managing property.
+-E : It Sets SD/DVD drive speed. In order to make it work you need to assign a speed number succeeding the option. Generally, the number used is two or four.
+-f : This is used to synchronize and cleanse the buffer cache for the device on its outlet. This performance can be executed as a segment of the -t and -T timings.
+-g : This is used to unveil the configuration of the drive, the expanse of the drive, and the starting offset of the device from the starting point of the drive.
+-h : It display the help message and exit.
+-i : This unveils the recognition data which was acquired from the drive at the boot time.
+-I : This seeks the recognition data straight from the drive and it shows more features than the -i flag.
+-k : This helps to get/set the keep_settings_over_reset flag for the drive.
+-K : This Sets the drive’s keep_features_over_reset flag. This feature is not provided by all the drives.
+-m : It is used to get/set sector count for multiple sectors I/O on the drive. To disable this feature you need to set the value to zero.
+-M : This helps to Get/set Automatic Acoustic Management (AAM) setting. This feature is experimental and it is not efficiently tested so, one must use it at their own risk.
+-n : It is used to get/set “ignore write errors” flag. One should not play with this feature without decoding the source code of the driver first.
+-r : It is used to get/set the read-only flag for the device. When this option is set then the write operations are not sanctioned on the device.
+-S : It Set the standby timeout for the drive. When the value is set to zero then it is off.
+-T : It executes the timing of cache reads for standard and differentiating purposes. It unveils the speed of reading straight from the buffer of the Linux cache in absence of the access to the disk, you need to perform this operation two to three times for better results.
+-t : This has the same purpose as -T flag except for that it unveils the speed of reading through the buffer cache to the disk in the absence of any prior caching of the inputs. If the -T flag is also defined here then the rectification done on the aftermath of -T will be encompassed into the consequence appeared at the time of -t operation.
+-u : It is used to get/set the interrupt-unmask flag for the drive when the value is set to one then the driver could unmask other interventions which occur in the processing of disk interrupts. This property can cause enormous file system corruption so, use at your own risk.
+-v : This unveils all the settings, except -i.
+-w : It helps in the device reset.
+-W : It Disables/enable the IDE drive’s write-caching characteristics.
+-y : It forces an IDE drive to immediately enter the low power consumption standby mode, usually causing it to spin down. The current power mode status can be checked using the -C flag.
+-Y : This pressurizes an IDE to interrupt into the low power consumption sleep mode, in order to shut down it completely, here the current power mode status can be detected with the help of -C flag.
+-z : This forces kernel re-read of the partition table for the designated device.
+-Z : This disables the automatic power-saving function.
+Examples:
+
+Command to display information of the hard drive: It is one of the most significant features as it unveils details of the hard disk drive, you need to use -I option and hard disk drive here.
+$ hdparm -I /dev/sda
+
+Command to display all the options:
+$ hdparm -h
+
+Command to test hard disk drive speed:
+$ hdparm -t /dev/vdb
+
+Command to measure hard disk cache read speed:
+$ hdparm -T /dev/vdb
+Output:
+
+
+
+Command to Enable read-ahead:
+$ hdparm -A 1 /dev/sda
+Command to switch the drive to the lowest degree of power management:
+$ hdparm -B 254 /dev/sda
+Command to get current settings:
+$ hdparm -d /dev/sdX
+Command to set DMA on for a device:
+$ hdparm -d1 /dev/hda
+Command to lower the noise created by some classical hard disk by lowering disk performance:
+$ hdparm -M 128 /dev/sda
