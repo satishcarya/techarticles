@@ -1,3 +1,7 @@
+example of hdparm is hdparm -I /dev/sdc
+
+here we get serial number and disk information 
+
 hdparm command in Linux with Examples
 “hdparm“(i.e, hard disk parameter) is one of the command line programs for Linux which is used to handle disk devices and hard disks. With the help of this command, you can get statistics about the hard disk, alter writing intervals, acoustic management, and DMA settings. It can also set parameters related to drive caches, sleep mode, power management, acoustic management, and DMA settings.
 
