@@ -4,3 +4,4 @@ drop down to shell
 run 
 vgchange -ay
 e2fsck -vfy /volume
+alternatively mount -o remount,rw /partition/identifier /mount/point
