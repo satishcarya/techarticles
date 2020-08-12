@@ -1,0 +1,6 @@
+how to run file system check on corrupted file system 
+boot the server with the disk / ISO
+drop down to shell
+run 
+vgchange -ay
+e2fsck -vfy /volume
