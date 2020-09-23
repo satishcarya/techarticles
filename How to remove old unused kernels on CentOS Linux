@@ -1,0 +1,92 @@
+How to remove old unused kernels on CentOS Linux
+Objective
+The objective is to remove old unused kernel.
+Operating System and Software Versions
+Operating System: - CentOS 7
+Requirements
+Privileged access to your CentOS server will be required.
+Difficulty
+EASY
+Conventions
+# - requires given linux commands to be executed with root privileges either directly as a root user or by use of sudo command
+$ - requires given linux commands to be executed as a regular non-privileged user
+Instructions
+Under a normal circumstances the number of installed and unused kernels does not affect server's performance. However, removing old unused kernels will free some disk space. If your server is configured with a separate /boot partition and you run into a issue with low disk space, removing unused kernels will provide remedy.
+Check for current Kernel
+First, check what kernel is currently used by your server:
+# uname -a
+Linux localhost.localdomain 3.10.0-693.5.2.el7.x86_64 #1 SMP Fri Oct 20 20:32:50 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux
+List all installed kernels
+In this step we will list all currently installed kernels:
+# rpm -q kernel
+kernel-3.10.0-327.36.3.el7.x86_64
+kernel-3.10.0-514.2.2.el7.x86_64
+kernel-3.10.0-693.5.2.el7.x86_64
+Kernel kernel-3.10.0-693.5.2.el7.x86_64 is currently loaded and used. based on the about output this is the latest version.
+SUBSCRIBE TO NEWSLETTER
+Subscribe to Linux Career NEWSLETTER and receive latest Linux news, jobs, career advice and tutorials.
+Remove old kernels manually
+At this stage we can use yum command to manually remove unused Linux kernels:
+# yum remove kernel-3.10.0-327.36.3.el7.x86_64 kernel-3.10.0-514.2.2.el7.x86_64
+Loaded plugins: fastestmirror
+Resolving Dependencies
+--> Running transaction check
+---> Package kernel.x86_64 0:3.10.0-327.36.3.el7 will be erased
+---> Package kernel.x86_64 0:3.10.0-514.2.2.el7 will be erased
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+=======================================================================================================================================================================================================================
+ Package                                         Arch                                            Version                                                      Repository                                          Size 
+=======================================================================================================================================================================================================================
+Removing:                                                                                                                                                                                                              
+ kernel                                          x86_64                                          3.10.0-327.36.3.el7                                          @anaconda                                          136 M 
+ kernel                                          x86_64                                          3.10.0-514.2.2.el7                                           @updates                                           148 M 
+                                                                                                                                                                                                                       
+Transaction Summary                                                                                                                                                                                                    
+=======================================================================================================================================================================================================================
+Remove  2 Packages                                                                                                                                                                                                     
+                                                                                                                                                                                                                       
+Installed size: 284 M                                                                                                                                                                                                  
+Is this ok [y/N]:
+Remove old unused kernel automatically
+Using package-cleanup command which is a part of yum-utils package we can uninstall any number of old kernels automatically. As an example using --oldkernels --count=2 option with package-cleanup command the command will remove all unused kernel while keeping last three most recent kernel versions installed.
+
+Let's remove all kernels expect the latest currently loaded kernel:
+# package-cleanup --oldkernels --count=1
+Loaded plugins: fastestmirror
+--> Running transaction check
+---> Package kernel.x86_64 0:3.10.0-327.36.3.el7 will be erased
+---> Package kernel.x86_64 0:3.10.0-514.2.2.el7 will be erased
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+=======================================================================================================================================================================================================================
+ Package                                         Arch                                            Version                                                      Repository                                          Size
+=======================================================================================================================================================================================================================
+Removing:
+ kernel                                          x86_64                                          3.10.0-327.36.3.el7                                          @anaconda                                          136 M
+ kernel                                          x86_64                                          3.10.0-514.2.2.el7                                           @updates                                           148 M
+
+Transaction Summary
+=======================================================================================================================================================================================================================
+Remove  2 Packages
+
+Installed size: 284 M
+Is this ok [y/N]:
+Configure yum to auto-remove old kernels
+By default CentOS will keep last 5 kernels installed on your system. This behavior is defined by installonly_limit=5 line within /etc/yum.conf file. Update the /etc/yum.conf configuration file appropriately to keep desired number of old kernels on your system after update. The minimum value to be set is 2. Example of /etc/yum.conf configuration file to keep only last two kernel versions:
+[main]
+cachedir=/var/cache/yum/$basearch/$releasever
+keepcache=0
+debuglevel=2
+logfile=/var/log/yum.log
+exactarch=1
+obsoletes=1
+gpgcheck=1
+plugins=1
+installonly_limit=2
+bugtracker_url=http://bugs.centos.org/set_project.php?project_id=23&ref=http://bugs.centos.org/bug_report_page.php?category=yum
+distroverpkg=centos-release
