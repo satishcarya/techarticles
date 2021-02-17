@@ -1,0 +1,186 @@
+Troubleshooting System Purpose Mismatches.
+ SOLUTION VERIFIED - Updated July 2 2020 at 8:44 PM - English 
+Environment
+Red Hat Enterprise Linux 7.7 and later
+Red Hat Enterprise Linux 8
+Issue
+With the introduction of setting system purpose attributes, a new System Purpose Status value is reported by subscription-manager status.
+
+Why Mismatched is reported by the subscription-manager status command?
+
+Resolution
+To resolve the status of Mismatched, there are a few paths to take:
+
+In the case of not having any subscription attached, attach a subscription that matches the System Purpose attributes that have been configured on the system. Running auto-attach will attempt to resolve this issue on its own.
+In the case of having subscriptions attached that do not match the System Purpose attributes that have been configured, reconfigure the System Purpose attributes for that system to match the subscription OR change the subscription that is attached to the system.
+Note: An example of what this looks like is located within the Root Cause section of this article.
+
+An alternative solution to these is to unset System Purpose attributes from the system. While these attributes are unset on a given system, they cannot be in a Mismatched state. It is the same as saying that you have no preference for the System Purpose or subscription types to attach.
+
+You can use the syspurpose tool from the CLI to manipulate these items after installation:
+
+Raw
+[root@rhel8 ~]# syspurpose --help
+usage: syspurpose [-h]
+
+                {set,unset,add,remove,set-role,unset-role,add-addons,remove-addons,unset-addons,set-sla,unset- 
+sla,set-usage,unset-usage,show}
+                ...
+
+System Syspurpose Management Tool
+
+positional arguments:
+{set,unset,add,remove,set-role,unset-role,add-addons,remove-addons,unset-addons,set-sla,unset-sla,set- 
+usage,unset-usage,show}
+                      sub-command help
+  set                 Sets the value for the given property
+  unset               Unsets (clears) the value for the given property
+  add                 Adds the value(s) to the given property
+  remove              Removes the value(s) from the given property
+  set-role            Set the system role to the system syspurpose
+  unset-role          Clear set role
+  add-addons          Add addons to the system syspurpose
+  remove-addons       Remove addons from the system syspurpose
+  unset-addons        Clear set addons
+  set-sla             Set the system sla
+  unset-sla           Clear set sla
+  set-usage           Set the system usage
+  unset-usage         Clear set usage
+  show                Show the current system syspurpose
+
+optional arguments:
+-h, --help            show this help message and exit
+Some subscriptions SKU without the Service Level attributes will not behave as expected. The system purpose attributes are Role, Usage, service_level_agreement, and Add-ons. To see the System Purpose attributes associated with a subscription, check for the Roles, Service Level,Usage, and Add-ons when reviewing subscription information via subscription-manager list --available --all command.
+
+Subscriptions who's service level is other than Premium, Standard or self-support might give issues when assigning system purpose attributes. Some examples are Dev professional, etc because the Service Level for these subscriptions is different.
+
+If you are unable to get into a Matched state, please contact Red Hat Technical Support by opening a case.
+
+Root Cause
+When Mismatched is reported by the subscription-manager status command, it means that the user has set a system purpose attribute value that is not currently being satisfied.
+
+There are two scenarios where System Purpose may become 'Mismatched':
+
+The system has System Purpose attributes set, but there are no subscriptions attached to meet those requirements.
+The system has System Purpose attributes set, and has one or more subscriptions with attributes that do not match those requirements.
+Looking at the syspurpose output from an example system:
+
+Raw
+[root@rhel8 ~]# syspurpose show
+{
+"role": "Red Hat Enterprise Linux Server",
+"service_level_agreement": "Premium",
+"usage": "Production"
+}
+The information from the subscription that corresponds with this is as follows:
+
+Raw
+[root@rhel8 ~]# subscription-manager list --consumed
+Subscription Name:   Red Hat Enterprise Linux Server, Premium (Physical or Virtual Nodes)
+Provides:            dotNET on RHEL Beta (for RHEL Server)
+<SNIP>-----------------
+Roles:               Red Hat Enterprise Linux Server      <-- Role (Red Hat Enterprise Linux Server / 
+Workstation / Compute Node)
+Service Level:       Premium                        <-- SLA / Service Level Agreement (Self-Support, 
+Standard, Premium, etc..)
+Usage:               Production                  <-- Usage (Disaster Recovery, Development/Test, 
+Production)
+Add-ons:                                <-- Addons such as High Availability, Extended Update Support 
+(Not in use yet)
+<SNIP>-----------------
+Entitlement Type:    Physical
+Diagnostic Steps
+To see your current System Purpose configuration from the CLI, run:
+
+Raw
+[root@rhel8 ~]# subscription-manager status
++-------------------------------------------+
+   System Status Details
++-------------------------------------------+
+Overall Status: Current
+
+System Purpose Status: Mismatched
+- The requested usage preference "Production" is not provided by a currently consumed subscription.
+- The service level preference "Premium" is not provided by a currently consumed subscription.
+- The requested role "Red Hat Enterprise Linux Server" is not provided by a currently consumed subscription.
+Raw
+[root@rhel8 ~]# syspurpose show
+{
+  "role": "Red Hat Enterprise Linux Server",
+  "service_level_agreement": "Premium",
+  "usage": "Production"
+}
+System purpose successfully sent to subscription management server.
+Raw
+[root@rhel8 ~]# subscription-manager list --consumed
++-------------------------------------------+
+   Consumed Subscriptions
++-------------------------------------------+
+Subscription Name:   Red Hat Enterprise Linux Developer Workstation, Enterprise
+Provides:            Red Hat Container Development Kit
+                     MRG Realtime
+                     Red Hat CodeReady Linux Builder for x86_64
+                     Red Hat Developer Tools (for RHEL Server)
+                     Red Hat Container Images
+                     Red Hat Container Images Beta
+                     Red Hat Developer Tools Beta (for RHEL Server)
+                     Red Hat Developer Toolset (for RHEL Server)
+                     Red Hat Enterprise Linux High Performance Networking (for
+                     RHEL Server)
+                     Red Hat Developer Tools (for RHEL Workstation)
+                     Red Hat Enterprise Linux High Performance Networking (for
+                     RHEL Server) - Extended Update Support
+                     Red Hat Developer Tools Beta (for RHEL Workstation)
+                     Red Hat Developer Toolset (for RHEL Workstation)
+                     Red Hat Enterprise Linux for x86_64
+                     Red Hat Enterprise Linux Resilient Storage for x86_64
+                     Red Hat Enterprise Linux Resilient Storage (for RHEL
+                     Server) - Extended Update Support
+                     dotNET on RHEL (for RHEL Server)
+                     Red Hat Enterprise Linux Server - Extended Update Support
+                     Red Hat Enterprise Linux Scalable File System (for RHEL
+                     Server)
+                     dotNET on RHEL Beta (for RHEL Server)
+                     Red Hat Enterprise Linux Scalable File System (for RHEL
+                     Server) - Extended Update Support
+                     Red Hat Enterprise Linux Workstation
+                     Red Hat Beta
+                     Oracle Java (for RHEL Server)
+                     Oracle Java (for RHEL Client)
+                     Red Hat Enterprise Linux for Real Time
+                     dotNET on RHEL (for RHEL Workstation)
+                     Oracle Java (for RHEL Workstation)
+                     dotNET on RHEL Beta (for RHEL Workstation)
+                     Red Hat Software Collections (for RHEL Server)
+                     Red Hat Software Collections (for RHEL Client)
+                     Oracle Java (for RHEL Server) - Extended Update Support
+                     Red Hat Software Collections (for RHEL Workstation)
+                     Red Hat Software Collections Beta (for RHEL Server)
+                     Red Hat Software Collections Beta (for RHEL Client)
+                     Red Hat Software Collections Beta (for RHEL Workstation)
+                     Red Hat Enterprise Linux High Availability for x86_64
+                     Red Hat Enterprise Linux High Availability (for RHEL
+                     Server) - Extended Update Support
+                     Red Hat Ansible Engine
+                     Red Hat Enterprise Linux Load Balancer (for RHEL Server)
+                     Red Hat Enterprise Linux Load Balancer (for RHEL Server) -
+                     Extended Update Support
+                     Red Hat Enterprise Linux Desktop
+                     Red Hat Enterprise Linux Server
+                     Red Hat Developer Toolset (for RHEL Server EUS)
+SKU:                 RH3413336
+Contract:            11874717
+Account:             6189195
+Serial:              7854492659556168050
+Pool ID:             8a99f9ac6ac68605016ac6a681ed0034
+Provides Management: No
+Active:              True
+Quantity Used:       1
+Roles:               Red Hat Enterprise Linux Workstation
+Service Level:       Dev-Enterprise
+Service Type:        L1-L3
+Status Details:      Subscription is current
+Subscription Type:   Standard
+Starts:              05/17/2019
+Ends:                05/16/2020
+System Type:         Virtual
