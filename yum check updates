@@ -1,0 +1,88 @@
+How to Check and Install Updates On CentOS and RHEL
+
+Installing updates for software packages or the kernel itself, is a highly recommended and beneficial task for system administrators; more especially when it comes to security updates or patches. While security vulnerabilities are discovered, the affected software must be updated so as to lessen any potential security risks to the whole system.
+
+If you have not configured your system to install security patches or updates automatically, then you need to do it manually. In this article, we will show you how to check and install software updates on CentOS and RHEL distributions.
+
+To check for any updates available for your installed packages, use YUM package manager with the check-update subcommand; this helps you to see all package updates from all repositories if any are available.
+
+# yum check-update
+Check All Software Package Updates
+Loaded plugins: changelog, fastestmirror
+base                                                                                                                                                 | 3.6 kB  00:00:00     
+epel/x86_64/metalink                                                                                                                                 |  22 kB  00:00:00     
+epel                                                                                                                                                 | 4.3 kB  00:00:00     
+extras                                                                                                                                               | 3.4 kB  00:00:00     
+mariadb                                                                                                                                              | 2.9 kB  00:00:00     
+updates                                                                                                                                              | 3.4 kB  00:00:00     
+(1/2): epel/x86_64/updateinfo                                                                                                                        | 842 kB  00:00:15     
+(2/2): epel/x86_64/primary_db                                                                                                                        | 6.1 MB  00:00:00     
+Loading mirror speeds from cached hostfile
+ * base: mirrors.linode.com
+ * epel: mirror.vorboss.net
+ * extras: mirrors.linode.com
+ * updates: mirrors.linode.com
+
+MariaDB-client.x86_64                                                              10.1.28-1.el7.centos                                                             mariadb 
+MariaDB-common.x86_64                                                              10.1.28-1.el7.centos                                                             mariadb 
+MariaDB-server.x86_64                                                              10.1.28-1.el7.centos                                                             mariadb 
+MariaDB-shared.x86_64                                                              10.1.28-1.el7.centos                                                             mariadb 
+NetworkManager.x86_64                                                              1:1.8.0-11.el7_4                                                                 updates 
+NetworkManager-adsl.x86_64                                                         1:1.8.0-11.el7_4                                                                 updates 
+....
+To update a single package to the latest available version, run the command below. In this example, yum will attempt to update the httpd package.
+
+# yum update httpd
+Update Apache Package
+Loaded plugins: changelog, fastestmirror
+Loading mirror speeds from cached hostfile
+ * base: mirrors.linode.com
+ * epel: mirror.vorboss.net
+ * extras: mirrors.linode.com
+ * updates: mirrors.linode.com
+Resolving Dependencies
+--> Running transaction check
+---> Package httpd.x86_64 0:2.4.6-45.el7.centos.4 will be updated
+--> Processing Dependency: httpd = 2.4.6-45.el7.centos.4 for package: 1:mod_ssl-2.4.6-45.el7.centos.4.x86_64
+---> Package httpd.x86_64 0:2.4.6-67.el7.centos.6 will be an update
+--> Processing Dependency: httpd-tools = 2.4.6-67.el7.centos.6 for package: httpd-2.4.6-67.el7.centos.6.x86_64
+--> Running transaction check
+---> Package httpd-tools.x86_64 0:2.4.6-45.el7.centos.4 will be updated
+---> Package httpd-tools.x86_64 0:2.4.6-67.el7.centos.6 will be an update
+---> Package mod_ssl.x86_64 1:2.4.6-45.el7.centos.4 will be updated
+---> Package mod_ssl.x86_64 1:2.4.6-67.el7.centos.6 will be an update
+....
+To update a package group, the command that follows will update your development tools (C and C++ compiler plus related utilities).
+
+# yum update "Development Tools"
+Update Group Packages
+Loaded plugins: changelog, fastestmirror
+Loading mirror speeds from cached hostfile
+ * base: mirrors.linode.com
+ * epel: mirror.vorboss.net
+ * extras: mirrors.linode.com
+ * updates: mirrors.linode.com
+...
+To upgrade all of your system software as well as their dependencies to the latest version, use this command:
+
+# yum update
+Update Software Packakges
+Loaded plugins: changelog, fastestmirror
+Loading mirror speeds from cached hostfile
+ * base: mirrors.linode.com
+ * epel: mirror.vorboss.net
+ * extras: mirrors.linode.com
+ * updates: mirrors.linode.com
+Resolving Dependencies
+--> Running transaction check
+---> Package MariaDB-client.x86_64 0:10.1.23-1.el7.centos will be updated
+---> Package MariaDB-client.x86_64 0:10.1.28-1.el7.centos will be an update
+---> Package MariaDB-common.x86_64 0:10.1.23-1.el7.centos will be updated
+---> Package MariaDB-common.x86_64 0:10.1.28-1.el7.centos will be an update
+---> Package MariaDB-server.x86_64 0:10.1.23-1.el7.centos will be updated
+---> Package MariaDB-server.x86_64 0:10.1.28-1.el7.centos will be an update
+---> Package MariaDB-shared.x86_64 0:10.1.23-1.el7.centos will be updated
+---> Package MariaDB-shared.x86_64 0:10.1.28-1.el7.centos will be an update
+---> Package NetworkManager.x86_64 1:1.4.0-19.el7_3 will be obsoleted
+---> Package NetworkManager.x86_64 1:1.8.0-11.el7_4 will be obsoleting
+....
