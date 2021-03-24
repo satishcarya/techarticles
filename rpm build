@@ -1,0 +1,290 @@
+How to create a Linux RPM package
+You've written a great script that you want to distribute, so why not package it as an RPM?
+Posted: November 27, 2020 | byValentin Bajrami (Red Hat Accelerator, Sudoer)
+
+Image
+How to create a Linux RPM package
+Photo by Ketut Subiyanto from Pexels
+
+This article shows you how to package a script into an RPM file for easy installation, updating, and removal from your Linux systems. Before I jump into the details, I'll explain what an RPM package is, and how you can install, query, remove, and, most importantly, create one yourself.
+
+This article covers:
+
+What an RPM package is.
+How to create an RPM package.
+How to install, query, and remove an RPM package.
+More about automation
+An introduction to Ansible
+3 ways to try Ansible Tower free
+Free Ansible e-books
+Getting started with network automation
+What is an RPM package?
+RPM stands for Red Hat Package Manager. It was developed by Red Hat and is primarily used on Red Hat-based Linux operating systems (Fedora, CentOS, RHEL, etc.).
+
+An RPM package uses the .rpm extension and is a bundle (a collection) of different files. It can contain the following:
+
+Binary files, also known as executables (nmap, stat, xattr, ssh, sshd, etc.).
+Configuration files (sshd.conf, updatedb.conf, logrotate.conf, etc.).
+Documentation files (README, TODO, AUTHOR, etc.).
+The name of every RPM package is comprised as follows:
+
+<name>-<version>-<release>.<arch>.rpm
+An example:
+
+bdsync-0.11.1-1.x86_64.rpm
+[ You might also enjoy: Linux package management with YUM and RPM ]
+
+How to create an RPM package
+You'll need the following components to build an RPM package:
+
+A workstation or a virtual machine (I am using Fedora 32 on a virtual machine).
+Software to build the package.
+Source code to package.
+SPEC file to build the RPM.
+Installing the required software
+The following packages need to be installed to build the RPM package:
+
+$ sudo dnf install -y rpmdevtools rpmlint
+After installing rpmdevtools, we can run the following as a user called sai.local:
+
+$ rpmdev-setuptree
+Note: Do not build RPM packages as the root user. This is highly discouraged.
+
+The above command creates the following directory structure:
+
+rpmbuild/
+├── BUILD
+├── RPMS
+├── SOURCES
+├── SPECS
+└── SRPMS
+The BUILD directory is used during the build process of the RPM package. This is where the temporary files are stored, moved around, etc.
+The RPMS directory holds RPM packages built for different architectures and noarch if specified in .spec file or during the build.
+The SOURCES directory, as the name implies, holds sources. This can be a simple script, a complex C project that needs to be compiled, a pre-compiled program, etc. Usually, the sources are compressed as .tar.gz or .tgz files.
+The SPEC directory contains the .spec files. The .spec file defines how a package is built. More on that later.
+The SRPMS directory holds the .src.rpm packages. A Source RPM package doesn’t belong to an architecture or distribution. The actual .rpm package build is based on the .src.rpm package.
+A .src.rpm package is very flexible since it can be built and re-built on every other RPM-based distribution and architecture.
+
+Since you're now familiar with what each directory holds, here's how to create a simple but functional bash script that I'll show you how to package.
+
+Create the bash script
+You are probably familiar with the following error:
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+
+Someone could be eavesdropping on you right now (man-in-the-middle attack)!
+
+It is also possible that the RSA host key has just been changed.
+The fingerprint for the RSA key sent by the remote host is
+da:ea:16:ff:db:d3:5c:0c:12:11:de:dd:2d:ba:fd:2a.
+Please contact your system administrator.
+Add correct host key in /home/foo/.ssh/known_hosts to get rid of this message.
+Offending key in /home/foo/.ssh/known_hosts:42
+RSA host key for domain.com has changed, and you have requested strict checking.
+Host key verification failed.
+So the purpose of this bash script is to remove the offending key from ~/.known_hosts without having to manually edit the file and remove 42.
+
+Note that ssh-keygen -R didn’t work in my case, so I created a script called rm-ssh-offendingkey to automate this process. Here it is:
+
+#!/usr/bin/env bash
+
+rmoffendingKey()
+{
+  local offendingKey="$1"
+  local st=1
+  if [[ ! -z $offendingKey && $offendingKey =~ [[:digit:]] ]]; then
+    sed -i "${offendingKey}d" ~/.ssh/known_hosts
+    st=$?
+  else
+    printf '%s\n' "You need to provide a line number" >&2
+  fi  
+  return $st
+}
+rmoffendingKey “$1”
+Place the script in the designated directory
+To build the script, you need to put it in the directory the RPM build process is expecting it to be in. Create the directory structure:
+
+$ mkdir p ~/rpmbuild/SOURCES/sshscript-1/rm-ssh-offendingkey/
+Put the rm-ssh-offendingkey script in the sshscript-1/rm-ssh-offendingkey directory.
+
+Subsequently, I .tar.gz the source as follows:
+
+$ cd ~/rpmbuild/SOURCES/ && tar zcvf sshscripts-1.tar.gz sshscripts-1/
+Create the .spec file
+To be able to package the script, you need to create a .spec file. To make a default .spec file for the package, I am going to use the following syntax:
+
+rpmdev-newspec rm-ssh-offendingkey
+Now let’s run tree ~/rpmbuild to see what the directory structure looks like:
+
+/home/sai.local/rpmbuild/
+├── BUILD
+├── BUILDROOT
+├── RPMS
+├── SOURCES
+│   └── sshscripts-1
+│       └── rm-ssh-offendingkey-1
+│           └── rm-ssh-offendingkey
+├── SPECS
+│   └── rm-ssh-offendingkey.spec
+└── SRPMS
+The generated rm-ssh-offendingkey.spec file needs some modifications. The generated .spec file assumes that I am going to compile and build software. Since I'm packaging a simple bash script, I'll remove some unnecessary lines from the .spec file and add others. For example, I added Requires: bash so that the package requires bash to be installed as well. I also added BuildArch: noarch which means that the package should work on a 32-bit and a 64-bit CPU architecture.
+
+Name:           sshscripts
+Version:        1
+Release:        0
+Summary:        A simple bash script to remove ssh offending key from known hosts
+BuildArch:      noarch
+
+License:        GPL
+#URL:            
+Source0:        %{name}-%{version}.tar.gz
+
+#BuildRequires:  
+Requires:       bash
+
+%description
+This is a simple script that somehow automates the removal of ssh offending key from the ~/.ssh/known_hosts file
+
+%prep
+%setup -q
+
+%build
+
+%install
+rm -rf $RPM_BUILD_ROOT
+mkdir -p $RPM_BUILD_ROOT/%{_bindir}
+cp rm-ssh-offendingkey-1/* $RPM_BUILD_ROOT/%{_bindir}
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%{_bindir}/rm-ssh-offendingkey
+
+%changelog
+* Sun Nov  8 2020 Valentin Bajrami <valentin.bajrami@slimmer.ai> - 0.1
+- First version being packaged
+It's important to specify which files are going to be installed under the %files section. Here I’ve explicitly put the following line:
+
+%files
+%{_bindir}/rm-ssh-offendingkey
+This is sufficient since I only want this script to go to /usr/bin. Oh, by the way, %{_bindir} is called a macro and translates to /usr/bin. You can verify this by running:
+
+$> rpm --eval '%{_bindir}'
+/usr/bin
+Other useful macros to be aware of are:
+
+Macro          Translates to
+%{_sbindir}    /usr/sbin
+%{_datadir}    /usr/share
+%{_sysconfdir}    /etc
+Checking the .spec file on error (rpmlint)
+At the beginning of the article, I installed the rpmlint package along with rpmdev-tools, which helps me to check the .spec file for errors.
+
+$ rpmlint ~/rpmbuild/SPECS/rm-ssh-ffendingkey.spec
+/home/sai.local/rpmbuild/SPECS/rm-ssh-ffendingkey.spec: W: invalid-url Source0: sshscripts-1.tar.gz
+0 packages and 1 specfiles checked; 0 errors, 1 warnings.
+Everthing looks good.
+
+Building the package (rpmbuild)
+To build the RPM package you can use the rpmbuild command. Earlier in this tutorial, I mentioned the difference between the .src.rpm (Source RPM package) and the .rpm package.
+
+To create the .src rpm package, use:
+
+$ rpmbuild -bs ~/rpmbuild/SPECS/rm-ssh-offendingkey.spec
+The flags -bs have the following meanings:
+
+-b | build
+-s | source
+To create the binary .rpm package, use:
+
+$ rpmbuild -bb ~/rpmbuild/SPECS/rm-ssh-offendingkey.spec
+The flags -bb have the following meanings:
+
+-b | build
+-b | binary
+If all goes well, you now have the following directory structure:
+
+$ tree ~/rpmbuild/
+/home/sai.local/rpmbuild/
+├── BUILD
+│   └── sshscripts-1
+│       ├── debugfiles.list
+│       ├── debuglinks.list
+│       ├── debugsourcefiles.list
+│       ├── debugsources.list
+│       ├── elfbins.list
+│       └── rm-ssh-offendingkey-1
+│           └── rm-ssh-offendingkey
+├── BUILDROOT
+├── RPMS
+│   └── noarch
+│       └── sshscripts-1-0.noarch.rpm
+├── SOURCES
+│   ├── sshscripts-1
+│   │   └── rm-ssh-offendingkey-1
+│   │       └── rm-ssh-offendingkey
+│   └── sshscripts-1.tar.gz
+├── SPECS
+│   └── rm-ssh-offendingkey.spec
+└── SRPMS
+
+11 directories, 10 files
+The following lines are indicating that the RPM package has successfully been built.
+
+├── RPMS
+│   └── noarch
+│       └── sshscripts-1-0.noarch.rpm
+Installing the RPM package
+After a successful build of the package, you now can install the RPM package as follows:
+
+$ sudo rpm -ivh ~/rpmbuild/RPMS/noarch/sshscripts-1-0.noarch.rpm
+
+Verifying...                          ################################# [100%]
+Preparing...                          ################################# [100%]
+Updating / installing...
+   1:sshscripts-1-0                   ################################# [100%]
+Verifying the package has been installed
+To verify the package has correctly been installed, run the following command:
+
+$ rpm -qi sshscripts-1
+Name        : sshscripts
+Version     : 1
+Release     : 0
+Architecture: noarch
+Install Date: Mon 09 Nov 2020 01:29:51 AM CET
+Group       : Unspecified
+Size        : 294
+License     : GPL
+Signature   : (none)
+Source RPM  : sshscripts-1-0.src.rpm
+Build Date  : Mon 09 Nov 2020 01:08:14 AM CET
+Build Host  : slimmerAI
+Summary     : A simple bash script to remove ssh offending key from known hosts
+Description :
+This is a simple script that somehow automates the removal of ssh offending key from the ~/.ssh/known_hosts file
+
+Querying some more info about the package, in the spec file, I did add a %changelog entry. This %changelog entry can be viewed as follows:
+
+$ rpm -q sshscripts-1 --changelog
+* Sun Nov 08 2020 Valentin Bajrami <valentin.bajrami@slimmer.ai> - 0.1
+- First version being packaged
+See what’s in the RPM package
+It is very easy and quite convenient to see which files an RPM package contains. This information is retrieved as follows:
+
+$ rpm -ql sshscripts-1
+/usr/bin/rm-ssh-offendingkey
+Removing the RPM package
+Removing the package from the system is just as easy as installing it.
+
+$ sudo rpm -ve sshscripts-1
+[sudo] password for sai.local:
+Preparing packages...
+sshscripts-1-0.noarch
+- v | verbose
+- e | erase
+Final thoughts
+In this document, I covered the very basics of an RPM package, including how to build, install, and remove it from your system. The .spec file can get very complicated as you build more advanced software. If you plan to continue your journey on building RPM packages, don’t forget to check out mock and the mock GitHub page.
